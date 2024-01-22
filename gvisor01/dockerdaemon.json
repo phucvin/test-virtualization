@@ -1,0 +1,22 @@
+{
+    "runtimes": {
+        "runsc-kvm": {
+            "path": "/usr/local/bin/runsc",
+            "runtimeArgs": [
+                "--platform=kvm"
+            ]
+        },
+        "runsc-systrap": {
+            "path": "/usr/local/bin/runsc",
+            "runtimeArgs": [
+                "--platform=systrap"
+            ]
+        },
+        "runsc-ptrace": {
+            "path": "/usr/local/bin/runsc",
+            "runtimeArgs": [
+                "--platform=ptrace"
+            ]
+        }
+    }
+}
