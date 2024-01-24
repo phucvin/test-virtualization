@@ -25,3 +25,4 @@ References:
 - https://man7.org/linux/man-pages/man2/syscall.2.html
 - https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl
 - https://cs.lmu.edu/~ray/notes/nasmtutorial/
+- https://stackoverflow.com/questions/3305350/how-do-32-bit-applications-make-system-calls-on-64-bit-linux
