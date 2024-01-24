@@ -1,6 +1,8 @@
 https://github.com/mit-pdos/biscuit
 
 ```
+$ sudo apt update
+$ sudo apt install qemu-system python2
 $ docker run -it --rm -v .:/project golang:1.10.1
 $ cd /project/src && ./all.bash  # this is inside the container, can quit after the go binary is built (i.e. ignore testing)
 $ exit
