@@ -13,3 +13,6 @@ $ ./runsc --rootless --network=none do ls .
 $ ./runsc --rootless --network=host do curl google.com
 $ sudo ./runsc --platform=kvm do curl google.com
 ```
+
+Notes:
+- gVisor seems not working inside containers (e.g. Gitpod), only in VMs (Github Codespaces)
