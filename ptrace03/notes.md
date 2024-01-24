@@ -2,6 +2,20 @@
 $ nasm -felf64 hello64.asm && ld -o hello64 hello64.o && ./hello64
 
 $ gcc -m32 -o hello32 hello32.s && ./hello32
+
+$ strace ./hello32
+execve("./hello32", ["./hello32"], 0x7ffc86939f20 /* 100 vars */) = 0
+strace: [ Process PID=42759 runs in 32 bit mode. ]
+[... a bunch of syscalls omitted since running a 32-bit progam on a 64-bit OS]
+write(1, "Hello 32 World\n", 15Hello 32 World
+)        = 15
+exit(0)                                 = ?
+
+$ strace ./hello64
+execve("./hello64", ["./hello64"], 0x7fff82471350 /* 100 vars */) = 0
+write(1, "Hello 64 World\n", 15Hello 64 World
+)        = 15
+exit(0)                                 = ?
 ```
 
 References:

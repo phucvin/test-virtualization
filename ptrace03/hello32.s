@@ -11,7 +11,7 @@ loop:
     # jmp loop
 
     # Exit
-    movl $60, %eax  # System call number (1 = sys_exit)
+    movl $1, %eax  # System call number (1 = sys_exit)
     movl $0, %ebx  # 1st param of sys_exit: error_code
     int $0x80  # Call kernel
 
