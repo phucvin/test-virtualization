@@ -16,3 +16,6 @@ Notes:
 - See https://github.com/mit-pdos/biscuit/issues/13#issuecomment-1726960802 to fix the boot error
 - To exit qemu, ctrl+a then x
 - The exact commit is https://github.com/mit-pdos/biscuit/commit/70d8496d1d31ec332f09200184229b743d433d45
+
+Also related:
+- https://github.com/SanseroGames/LetsGo-OS
