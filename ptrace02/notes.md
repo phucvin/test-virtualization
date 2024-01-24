@@ -8,3 +8,4 @@ References:
 - https://github.com/liamg/siphon
 - https://github.com/criyle/go-sandbox
 - https://github.com/anfractuosity/procmod
+- https://man7.org/linux/man-pages/man2/syscall.2.html
