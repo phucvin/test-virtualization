@@ -5,3 +5,6 @@ TODO:
 References:
 - https://github.com/google/gvisor/tree/master/pkg/sentry/mm
 - https://groups.google.com/g/gvisor-users/c/9KOz4qBKl18?pli=1
+- https://man7.org/linux/man-pages/man5/proc.5.html
+- https://blog.cloudflare.com/diving-into-proc-pid-mem
+- https://www.baeldung.com/linux/proc-id-maps
