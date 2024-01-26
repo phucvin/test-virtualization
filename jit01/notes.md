@@ -1,6 +1,6 @@
 Execute machine/binary code:
 ```
-$ gcc -o execbin execbin.c && ./execbin <<< "101110001001101000000010000000000000000011000011"
+$ gcc -o execbin01 execbin01.c && ./execbin01 <<< "101110001001101000000010000000000000000011000011"
 function returned 666
 ```
 Try modify the 1s and 0s to see different results or errors (e.g. segfault).
