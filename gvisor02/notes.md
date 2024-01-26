@@ -16,3 +16,9 @@ $ sudo ./runsc --platform=kvm do curl google.com
 
 Notes:
 - gVisor seems not working inside containers (e.g. Gitpod), only in VMs (Github Codespaces)
+
+TODO:
+- Test with userfaultfd, should fail since it is not supported in gVisor's kernel yet
+
+References:
+- https://github.com/google/gvisor/issues/266 (Implement userfaultfd)
