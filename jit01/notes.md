@@ -5,6 +5,9 @@ function returned 666
 ```
 Try modify the 1s and 0s to see different results or errors (e.g. segfault).
 
+```
+$ gcc -o execbin02 execbin02.c && ./execbin02
+```
 
 TODO:
 - Simple WASM JIT
