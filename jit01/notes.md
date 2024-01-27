@@ -26,7 +26,7 @@ TODO:
 References:
 - https://stackoverflow.com/questions/5267988/how-to-write-and-execute-pure-machine-code-manually-without-containers-like-exe
 - https://eli.thegreenplace.net/2013/11/05/how-to-jit-an-introduction
-- https://github.com/StanfordPL/x64asm
+- https://github.com/StanfordPL/x64asm/blob/develop/examples/hello.cc
 - https://github.com/wingo/wasm-jit (maybe not really relevant here)
 - https://github.com/vshymanskyy/wasm2native
 - https://kripken.github.io/blog/wasm/2020/07/27/wasmboxc.html
