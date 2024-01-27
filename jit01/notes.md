@@ -9,6 +9,14 @@ Try modify the 1s and 0s to see different results or errors (e.g. segfault).
 $ gcc -o execbin02 execbin02.c && ./execbin02
 ```
 
+```
+$ gcc -o execbin03 execbin03.c && ./execbin03
+```
+
+```
+$ gcc -fno-builtin -static -nostdlib -m32  -fomit-frame-pointer nostd01.c -o nostd01 && ./nostd01
+```
+
 TODO:
 - Simple WASM JIT
 - Generate a ELF file (similar to a simple compiler)
