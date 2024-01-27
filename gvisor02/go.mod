@@ -23,5 +23,5 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
-	gvisor.dev/gvisor v0.0.0-20240124183453-a3081c5b0f93 // indirect
+	gvisor.dev/gvisor v0.0.0-20240125213753-2b99a0a2b4e0 // indirect
 )

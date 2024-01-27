@@ -47,3 +47,5 @@ google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs
 google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gvisor.dev/gvisor v0.0.0-20240124183453-a3081c5b0f93 h1:hyvwGPM/q9c1bNtLAXMM9jAPabHi+STDeVWxemNjMOE=
 gvisor.dev/gvisor v0.0.0-20240124183453-a3081c5b0f93/go.mod h1:10sU+Uh5KKNv1+2x2A0Gvzt8FjD3ASIhorV3YsauXhk=
+gvisor.dev/gvisor v0.0.0-20240125213753-2b99a0a2b4e0 h1:cOV7qOGWyzMLmf0daA5EGpA1u5CWw8NVPOTo0vIIuQ0=
+gvisor.dev/gvisor v0.0.0-20240125213753-2b99a0a2b4e0/go.mod h1:10sU+Uh5KKNv1+2x2A0Gvzt8FjD3ASIhorV3YsauXhk=
