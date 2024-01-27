@@ -31,11 +31,15 @@ sudo: unable to resolve host codespaces-509483: Name or service not known
 ++ userfaultfd failed: Function not implemented
 ```
 
+Try modify gVisor code to print debug message when got a syscall:
+- Modify `/go/pkg/mod/gvisor.dev/gvisor@v0.0.0-20240125213753-2b99a0a2b4e0/pkg/sentry/syscalls/linux/sys_read_write.go`
+- Add `import "gvisor.dev/gvisor/pkg/log"` first
+- Then, for example, search for `func Write(` and add `log.Infof("sys_write called")`
+- Re-run: `CGO_ENABLED=0 GO111MODULE=on go build -o runsc gvisor.dev/gvisor/runsc` and the `runsc` commands above
+- TODO: How to view logs from Sentry
+
 Notes:
 - gVisor seems not working inside containers (e.g. Gitpod), only in VMs (Github Codespaces)
-
-TODO:
-- Try modify gVisor code to print debug message when got a syscall, etc.
 
 References:
 - https://github.com/google/gvisor/issues/266 (Implement userfaultfd)
