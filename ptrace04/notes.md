@@ -1,6 +1,7 @@
 TODO:
 - Try PTRACE_SYSEMU, PTRACE_O_TRACECLONE
-- Clone to keep the same address space, and load binary/ELF to executed in the cloned/tracee process so the tracer can directly access memory of the tracee as well. This would be an example of manage memory somewhat similar to gVisor.
+- Clone to keep the same address space, and load binary/ELF to executed in the cloned/tracee process so the tracer can directly access memory of the tracee as well.
+- The above would be a foundation for managing memory somewhat similar to gVisor. Next is to handle guest mmap and mmap it to a memfd file + protecting the host process's memory from guest binary.
 - Write a simple ptrace tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes.
 - Multi-thread multi-process ptrace
 
