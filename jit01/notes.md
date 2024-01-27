@@ -11,6 +11,7 @@ $ gcc -o execbin02 execbin02.c && ./execbin02
 
 ```
 $ gcc -o execbin03 execbin03.c && ./execbin03
+$ strace ./execbin03
 ```
 
 ```
@@ -18,8 +19,9 @@ $ gcc -fno-builtin -static -nostdlib -m32  -fomit-frame-pointer nostd01.c -o nos
 ```
 
 TODO:
-- Simple WASM JIT
+- Load a ELF file and run it in sandbox using ptrace
 - Generate a ELF file (similar to a simple compiler)
+- Simple WASM JIT
 
 References:
 - https://stackoverflow.com/questions/5267988/how-to-write-and-execute-pure-machine-code-manually-without-containers-like-exe
