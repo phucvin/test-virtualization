@@ -1,6 +1,7 @@
 ```
 $ nasm -felf64 hello64.asm && ld -o hello64 hello64.o && ./hello64
 
+$ sudo apt-get install gcc-multilib  # Needs to install 32-bit libs on a 64-bit OS
 $ gcc -m32 -o hello32 hello32.s && ./hello32
 
 $ strace ./hello32
