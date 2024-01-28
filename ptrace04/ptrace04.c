@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         switch (regs.orig_rax) {
             case -8: {
                 DEBUG("Returning failed syscall brk");
-                regs.rax = -EINVAL;
+                regs.rax = -ENOMEM;
                 if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
                 break;
             }
