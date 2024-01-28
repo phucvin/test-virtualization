@@ -90,10 +90,6 @@ Notes & TODO:
 - The above would be a foundation for managing memory somewhat similar to gVisor. Next is to handle guest mmap and mmap it to a memfd file + protecting the host process's memory from guest binary.
 - Doesn't work yet, probably because cloned process is not ptraceable trivially.
 
-TODO:
-- Write a simple ptrace tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes.
-- Multi-thread multi-process ptrace
-
 Test memfd, mmap and fork:
 ```
 $ gcc -o memfd01 memfd01.c && ./memfd01
@@ -116,9 +112,6 @@ References:
 - https://man7.org/linux/man-pages/man2/clone.2.html
 - https://groups.google.com/g/gvisor-users/c/9KOz4qBKl18?pli=1 (Sentry memory management)
 - https://github.com/google/gvisor/blob/master/pkg/sentry/mm/README.md
-- https://man7.org/linux/man-pages/man5/proc.5.html
-- https://blog.cloudflare.com/diving-into-proc-pid-mem
-- https://www.baeldung.com/linux/proc-id-maps
 - https://stackoverflow.com/questions/5395769/any-good-guides-on-using-ptrace-sysemu
 - https://github.com/astroza/vkern (uses PTRACE_SYSEMU)
 - https://github.com/TUD-OS/libelkvm
