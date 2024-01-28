@@ -26,6 +26,10 @@
         exit(EXIT_FAILURE); \
     } while (0)
 
+#define DEBUG(...) \
+    printf("\t\t\t[ptrace04] " __VA_ARGS__); \
+    printf("\n"); \
+
 int main(int argc, char **argv) {
     if (argc <= 1) FATAL("Too few arugments");
 
@@ -53,10 +57,18 @@ int main(int argc, char **argv) {
         if (ptrace(PTRACE_GETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        printf("\t\t\t[ptrace04] Got syscall number=%llu\n", regs.orig_rax);
+        DEBUG("Got syscall number=%llu", regs.orig_rax);
         switch (regs.orig_rax) {
-            case SYS_exit: exit(regs.rdi);
-            case SYS_exit_group: exit(regs.rdi);
+            case SYS_exit:
+            case SYS_exit_group:
+                exit(regs.rdi);
+                break;
+
+            case SYS_mmap: {
+                DEBUG("Processing syscall_mmap, orig_rax=%llu, rdi=%p",
+                      regs.orig_rax, (void*)regs.rdi);
+                break;
+            }
         }
 
         /* Run system call and stop on exit */
