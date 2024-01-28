@@ -33,3 +33,5 @@ References:
 - https://github.com/jserv/amacc
 - https://github.com/Valentin271/tiny-elf & https://github.com/vishen/go-x64-executable
 - https://crates.io/crates/faerie
+- https://eli.thegreenplace.net/2013/10/17/getting-started-with-libjit-part-1
+- https://www.gnu.org/software/libjit/
