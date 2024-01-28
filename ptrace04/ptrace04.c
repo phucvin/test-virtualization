@@ -75,6 +75,15 @@ int main(int argc, char **argv) {
                 break;
             }
 
+            case SYS_brk: {
+                void* addr = (void*)regs.rdi;
+                DEBUG("Getting syscall brk, addr=%p", addr);
+                // Set to an invalid but unique syscall number, so nothing will be executed at kernel
+                regs.orig_rax = -8;
+                if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
+                break;
+            }
+
             case SYS_mmap: {
                 void* addr = (void*)regs.rdi;
                 long len = regs.rsi;
@@ -115,13 +124,13 @@ int main(int argc, char **argv) {
                     // Tracee's address can be dereference without translation
                     // since it's mmaped at the same address at tracer
                     DEBUG("Accessing %p: %s", buf, (char*)buf);
-                    DEBUG("Modifying (reversing) it");
+                    DEBUG("Modifying (case reversing) it");
                     char* bufc = (char*)buf;
-                    if (bufc[len-1] == '\n') len -= 1;
-                    for (int i = 0; i < len / 2; ++i) {
+                    for (int i = 0; i < len; ++i) {
                         char c = bufc[i];
-                        bufc[i] = bufc[len-1-i];
-                        bufc[len-1-i] = c;
+                        if (c >= 'a' && c <= 'z') c = 'A' + (c - 'a');
+                        else if (c >= 'A' && c <= 'Z') c = 'a' + (c - 'A');
+                        bufc[i] = c;
                     }
                 }
                 break;
@@ -137,6 +146,13 @@ int main(int argc, char **argv) {
 
         /* Special handling per system call (exit) */
         switch (regs.orig_rax) {
+            case -8: {
+                DEBUG("Returning failed syscall brk");
+                regs.rax = -EINVAL;
+                if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
+                break;
+            }
+
             case SYS_mmap: {
                 void* addr = (void*)regs.rdi;
                 long len = regs.rsi;

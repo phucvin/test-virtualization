@@ -15,8 +15,7 @@ int main() {
     for (int i = 0; i < size-1; ++i) {
         buf[i] = 'A' + (i % 26);
     }
-    // Note: printf or puts won't work with ptrace04
-    // since they use sbrk internally to construct the final buffer
+    printf("this is %s", buf);
     write(1, buf, size);
     return 0;
 }
