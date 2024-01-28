@@ -16,7 +16,8 @@
 static int child_func(void* arg) {
   char* buf = (char*)arg;
   printf("Child sees buf = \"%s\"\n", buf);
-  strcpy(buf, "hello from child");
+  printf("Writing something else to buf\n");
+  strcpy(buf, "hello from CHILD");
   return 0;
 }
 
@@ -48,6 +49,10 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  printf("Child exited with status %d. buf = \"%s\"\n", status, buf);
+  printf("Child exited with status %d\n", status);
+  printf("Checking buf again, buf = \"%s\"\n", buf);
+  if (strcmp(buf, "hello from parent") == 0) {
+    printf("The data in buf doesn't change, try running again with `vm` argument\n");
+  }
   return 0;
 }

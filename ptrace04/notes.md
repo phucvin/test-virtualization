@@ -2,7 +2,16 @@ Test clone(2):
 ```
 $ gcc -o clone01 clone01.c && ./clone01
 Child sees buf = "hello from parent"
-Child exited with status 0. buf = "hello from parent"
+Writing something else to buf
+Child exited with status 0
+Checking buf again, buf = "hello from parent"
+The data in buf doesn't change, try running again with `vm` argument
+
+$ ./clone01 vm
+Child sees buf = "hello from parent"
+Writing something else to buf
+Child exited with status 0
+Checking buf again, buf = "hello from CHILD"
 ```
 
 TODO:
