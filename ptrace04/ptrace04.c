@@ -14,20 +14,20 @@
 
 #define FATAL(...) \
     do { \
-        fprintf(stderr, "\t\t\t[ptrace04] " __VA_ARGS__); \
+        fprintf(stderr, "\t[ptrace04] " __VA_ARGS__); \
         fputc('\n', stderr); \
         exit(EXIT_FAILURE); \
     } while (0)
 
 #define PFATAL(...) \
     do { \
-        fprintf(stderr, "\t\t\t[ptrace04] " __VA_ARGS__); \
+        fprintf(stderr, "\t[ptrace04] " __VA_ARGS__); \
         fprintf(stderr, ", str(errno): %s\n", strerror(errno)); \
         exit(EXIT_FAILURE); \
     } while (0)
 
 #define DEBUG(...) \
-    printf("\t\t\t[ptrace04] " __VA_ARGS__); \
+    printf("\t[ptrace04] " __VA_ARGS__); \
     printf("\n"); \
 
 #define DISABLED_DEBUG(...) \
@@ -39,11 +39,11 @@ int main(int argc, char **argv) {
     if (memfd == -1) PFATAL("Failed memfd_create");
     // So mmap won't fail because accessing beyond the end of the file
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
-    DEBUG("Created memfd: %d", memfd);
     void* mem_start = (void*)0x11000000;
     void* mem_end = (void*)0x11ffffffff;
     void* mem = mmap(mem_start, mem_end-mem_start, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, memfd, 0);
     if (mem == MAP_FAILED) PFATAL("Failed mmap");
+    DEBUG("Created memfd, fd=%d, start=%p, end=%p", memfd, mem_start, mem_end);
 
     int pid = fork();
     if (pid == -1) PFATAL("Failed fork");
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
                     regs.r9 = fd_offset;
                     mmapped_size += len;
                     DEBUG("Fixing mmap(NULL, %ld, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)"
-                          "\n\t\t\t\tto mmap(%p, <same>, <same>, MAP_SHARED, `shared memfd`, %ld)",
+                          "\n\t\tto mmap(%p, <same>, <same>, MAP_SHARED, `shared memfd`, %ld)",
                           len, addr, fd_offset);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
                 }
@@ -120,11 +120,10 @@ int main(int argc, char **argv) {
                 long len = regs.rdx;
                 DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
                 if (buf >= mem_start && buf <= mem_end) {
-                    DEBUG("The address is inside memfd");
+                    DEBUG("The address is inside memfd, will modifying (case reversing) it");
+                    printf("\t\t%p before: %s", buf, (char*)buf);
                     // Tracee's address can be dereference without translation
                     // since it's mmaped at the same address at tracer
-                    DEBUG("Accessing %p: %s", buf, (char*)buf);
-                    DEBUG("Modifying (case reversing) it");
                     char* bufc = (char*)buf;
                     for (int i = 0; i < len; ++i) {
                         char c = bufc[i];
@@ -132,6 +131,9 @@ int main(int argc, char **argv) {
                         else if (c >= 'A' && c <= 'Z') c = 'a' + (c - 'A');
                         bufc[i] = c;
                     }
+                    printf("\t\t%p after: %s", buf, (char*)buf);
+                } else {
+                    DEBUG("The address is outside memfd, won't modify it");
                 }
                 break;
             }

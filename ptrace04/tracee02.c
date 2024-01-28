@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
+const char text[] = "this is in the program data section\n";
+
 int main() {
     int size = 32;
     void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
@@ -17,5 +19,6 @@ int main() {
     }
     printf("this is %s", buf);
     write(1, buf, size);
+    write(1, text, sizeof(text));
     return 0;
 }
