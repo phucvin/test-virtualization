@@ -1,3 +1,10 @@
+Test clone(2):
+```
+$ gcc -o clone01 clone01.c && ./clone01
+Child sees buf = "hello from parent"
+Child exited with status 0. buf = "hello from parent"
+```
+
 TODO:
 - Try PTRACE_SYSEMU, PTRACE_O_TRACECLONE
 - Clone to keep the same address space, and load binary/ELF to executed in the cloned/tracee process so the tracer can directly access memory of the tracee as well.
