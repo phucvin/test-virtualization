@@ -14,20 +14,20 @@
 
 #define FATAL(...) \
     do { \
-        fprintf(stderr, "\t[ptrace04] " __VA_ARGS__); \
+        fprintf(stderr, "\t[ptrace03] " __VA_ARGS__); \
         fputc('\n', stderr); \
         exit(EXIT_FAILURE); \
     } while (0)
 
 #define PFATAL(...) \
     do { \
-        fprintf(stderr, "\t[ptrace04] " __VA_ARGS__); \
+        fprintf(stderr, "\t[ptrace03] " __VA_ARGS__); \
         fprintf(stderr, ", str(errno): %s\n", strerror(errno)); \
         exit(EXIT_FAILURE); \
     } while (0)
 
 #define DEBUG(...) \
-    printf("\t[ptrace04] " __VA_ARGS__); \
+    printf("\t[ptrace03] " __VA_ARGS__); \
     printf("\n"); \
 
 #define DISABLED_DEBUG(...) \

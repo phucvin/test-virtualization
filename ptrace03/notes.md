@@ -1,3 +1,15 @@
+Test tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes:
+```
+$ gcc -o ptrace03 ptrace03.c && nasm -felf64 hello64.asm && ld -o hello64 hello64.o && ./ptrace03 ./hello64
+        [ptrace03] Child PID: 13396
+Hello 64 World
+        [ptrace03] Child exiting, paused, <ctrl+c> to exit
+
+# In another shell
+$ cat /proc/pid/maps
+```
+
+Other smaller related tests:
 ```
 $ nasm -felf64 hello64.asm && ld -o hello64 hello64.o && ./hello64
 
@@ -20,7 +32,6 @@ exit(0)                                 = ?
 ```
 
 TODO:
-- Write a simple ptrace tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes.
 - Multi-thread multi-process ptrace
 
 References:
