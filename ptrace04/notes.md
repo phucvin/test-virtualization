@@ -1,6 +1,27 @@
 Main test in this folder: use ptrace, fork, memfd, mmap to allow tracer to read & write tracee memory faster than PTRACE_(PEEKDATA/POKEDATA)
 ```
 $ gcc -o ptrace04 ptrace04.c && gcc -o tracee02 tracee02.c && ./ptrace04 ./tracee02
+                        [ptrace04] Created memfd: 3
+                        [ptrace04] Getting syscall mmap, addr=(nil), len=38391, prot=1, flags=2, fd=4, fd_offset=0
+                        [ptrace04] Actually sent syscall mmap, addr=(nil), len=38391, prot=1, flags=2, fd=4, fd_offset=0
+                        [ptrace04] Getting syscall mmap, addr=(nil), len=8192, prot=3, flags=34, fd=4294967295, fd_offset=0
+                        [ptrace04] Actually sent syscall mmap, addr=(nil), len=8192, prot=3, flags=34, fd=4294967295, fd_offset=0
+                        [ptrace04] Getting syscall mmap, addr=(nil), len=2037344, prot=1, flags=2050, fd=4, fd_offset=0
+                        [ptrace04] Actually sent syscall mmap, addr=(nil), len=2037344, prot=1, flags=2050, fd=4, fd_offset=0
+                        [ptrace04] Getting syscall mmap, addr=0x7f8b283e7000, len=1540096, prot=5, flags=2066, fd=4, fd_offset=139264
+                        [ptrace04] Actually sent syscall mmap, addr=0x7f8b283e7000, len=1540096, prot=5, flags=2066, fd=4, fd_offset=139264
+                        [ptrace04] Getting syscall mmap, addr=0x7f8b2855f000, len=319488, prot=1, flags=2066, fd=4, fd_offset=1679360
+                        [ptrace04] Actually sent syscall mmap, addr=0x7f8b2855f000, len=319488, prot=1, flags=2066, fd=4, fd_offset=1679360
+                        [ptrace04] Getting syscall mmap, addr=0x7f8b285ad000, len=24576, prot=3, flags=2066, fd=4, fd_offset=1994752
+                        [ptrace04] Actually sent syscall mmap, addr=0x7f8b285ad000, len=24576, prot=3, flags=2066, fd=4, fd_offset=1994752
+                        [ptrace04] Getting syscall mmap, addr=0x7f8b285b3000, len=13920, prot=3, flags=50, fd=4294967295, fd_offset=0
+                        [ptrace04] Actually sent syscall mmap, addr=0x7f8b285b3000, len=13920, prot=3, flags=50, fd=4294967295, fd_offset=0
+                        [ptrace04] Getting syscall mmap, addr=(nil), len=4096, prot=3, flags=34, fd=0, fd_offset=0
+                        [ptrace04] Fixing mmap(NULL, ?, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)
+                                to mmap(NULL, <same>, <same>, MAP_SHARED, `shared memfd`, 0)
+                        [ptrace04] Actually sent syscall mmap, addr=(nil), len=4096, prot=3, flags=1, fd=3, fd_offset=0
+abcdefghijklmnopqrstuvwxyzabcde
+                        [ptrace04] mmap(memfd) at the end: abcdefghijklmnopqrstuvwxyzabcde
 ```
 Notes:
 - This is to improve https://github.com/phucvin/ptrace-examples (which uses PTRACE_(PEEKDATA/POKEDATA))

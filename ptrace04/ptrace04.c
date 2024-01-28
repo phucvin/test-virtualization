@@ -30,11 +30,16 @@
     printf("\t\t\t[ptrace04] " __VA_ARGS__); \
     printf("\n"); \
 
+#define DISABLED_DEBUG(...) \
+
 int main(int argc, char **argv) {
     if (argc <= 1) FATAL("Too few arugments");
 
     int memfd = memfd_create("memfd01", 0);
     if (memfd == -1) PFATAL("Failed memfd_create");
+    // So mmap won't fail because accessing beyond the end of the file
+    if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
+    DEBUG("Created memfd: %d", memfd);
 
     int pid = fork();
     if (pid == -1) PFATAL("Failed fork");
@@ -57,16 +62,40 @@ int main(int argc, char **argv) {
         if (ptrace(PTRACE_GETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        DEBUG("Got syscall number=%llu", regs.orig_rax);
+        // DEBUG("Got syscall number=%llu", regs.orig_rax);
         switch (regs.orig_rax) {
             case SYS_exit:
-            case SYS_exit_group:
+            case SYS_exit_group: {
+                char* memch = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
+                DEBUG("mmap(memfd) at the end: %s", memch);
                 exit(regs.rdi);
                 break;
+            }
 
             case SYS_mmap: {
-                DEBUG("Processing syscall_mmap, orig_rax=%llu, rdi=%p",
-                      regs.orig_rax, (void*)regs.rdi);
+                void* addr = (void*)regs.rdi;
+                long len = regs.rsi;
+                long prot = regs.rdx;
+                long flags = regs.r10;
+                long fd = regs.r8;
+                long fd_offset = regs.r9;
+                DEBUG("Getting syscall mmap, addr=%p, len=%ld, "
+                      "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
+                      addr, len, prot, flags, fd, fd_offset);
+                if (addr == NULL &&
+                    len == 4096 &&  // TODO: Remove
+                    prot == 3 /* PROT_READ | PROT_WRITE */ &&
+                    flags == 34 /* MAP_PRIVATE | MAP_ANONYMOUS */) {
+                    DEBUG("Fixing mmap(NULL, ?, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)"
+                          "\n\t\t\t\tto mmap(NULL, <same>, <same>, MAP_SHARED, `shared memfd`, 0)");
+                    flags = MAP_SHARED;
+                    regs.r10 = flags;
+                    fd = memfd;
+                    regs.r8 = fd;
+                    fd_offset = 0;
+                    regs.r9 = fd_offset;
+                    if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
+                }
                 break;
             }
         }
@@ -77,7 +106,18 @@ int main(int argc, char **argv) {
 
         /* Special handling per system call (exit) */
         switch (regs.orig_rax) {
-            // TODO
+            case SYS_mmap: {
+                void* addr = (void*)regs.rdi;
+                long len = regs.rsi;
+                long prot = regs.rdx;
+                long flags = regs.r10;
+                long fd = regs.r8;
+                long fd_offset = regs.r9;
+                DEBUG("Actually sent syscall mmap, addr=%p, len=%ld, "
+                      "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
+                      addr, len, prot, flags, fd, fd_offset);
+                break;
+            }
         }
     }
 }
