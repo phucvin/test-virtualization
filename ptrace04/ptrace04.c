@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
     // So mmap won't fail because accessing beyond the end of the file
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
     DEBUG("Created memfd: %d", memfd);
+    void* mem = mmap(NULL, 0xffffffff, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
+    if (mem == MAP_FAILED) PFATAL("Failed mmap");
 
     int pid = fork();
     if (pid == -1) PFATAL("Failed fork");
@@ -67,8 +69,8 @@ int main(int argc, char **argv) {
         switch (regs.orig_rax) {
             case SYS_exit:
             case SYS_exit_group: {
-                char* memch = mmap(NULL, 0xffffffff, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
                 // Try both, since tracee02 has 2 mmap, the later one is the one seen in tracee02.c
+                char* memch = (char*)mem;
                 DEBUG("mmap(memfd)+0 at the end: %s", memch + 0);
                 DEBUG("mmap(memfd)+8192 at the end: %s", memch + 8192);
                 exit(regs.rdi);
@@ -88,8 +90,9 @@ int main(int argc, char **argv) {
                 if (addr == NULL &&
                     prot == 3 /* PROT_READ | PROT_WRITE */ &&
                     flags == 34 /* MAP_PRIVATE | MAP_ANONYMOUS */) {
-                    addr = NULL;  // 0x11000000 + mmapped_size
-                    flags = MAP_SHARED;
+                    addr = mem + mmapped_size;
+                    regs.rdi = (long)addr;
+                    flags = MAP_SHARED | MAP_FIXED;
                     regs.r10 = flags;
                     fd = memfd;
                     regs.r8 = fd;
@@ -109,7 +112,7 @@ int main(int argc, char **argv) {
                 void* buf = (void*)regs.rsi;
                 long len = regs.rdx;
                 DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
-                DEBUG("Accessing %p: %s", buf, buf);
+                DEBUG("Accessing %p: %s", buf, (char*)buf);
                 break;
             }
         }
@@ -117,6 +120,9 @@ int main(int argc, char **argv) {
         /* Run system call and stop on exit */
         if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1) PFATAL("Failed PTRACE_SYSCALL");
         if (waitpid(pid, 0, 0) == -1) PFATAL("Failed waitpid");
+
+        /* Gather register values after syscall exit */
+        if (ptrace(PTRACE_GETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (exit) */
         switch (regs.orig_rax) {
@@ -127,9 +133,9 @@ int main(int argc, char **argv) {
                 long flags = regs.r10;
                 long fd = regs.r8;
                 long fd_offset = regs.r9;
-                DISABLED_DEBUG("Actually sent syscall mmap, addr=%p, len=%ld, "
-                      "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
-                      addr, len, prot, flags, fd, fd_offset);
+                DEBUG("Sent syscall mmap, addr=%p, len=%ld, "
+                      "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld. Got result=%p",
+                      addr, len, prot, flags, fd, fd_offset, (void*)regs.rax);
                 break;
             }
         }
