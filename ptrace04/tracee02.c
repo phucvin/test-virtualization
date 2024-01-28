@@ -11,10 +11,9 @@ int main() {
         return 1;
     }
     char* buf = (char*)mem;
-    buf[size-1] = '\0';
-    buf[size-2] = '\n';
-    for (int i = 0; i < size-2; ++i) {
-        buf[i] = 'a' + (i % 26);
+    buf[size-1] = '\n';
+    for (int i = 0; i < size-1; ++i) {
+        buf[i] = 'A' + (i % 26);
     }
     // Note: printf or puts won't work with ptrace04
     // since they use sbrk internally to construct the final buffer

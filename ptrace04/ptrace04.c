@@ -69,10 +69,6 @@ int main(int argc, char **argv) {
         switch (regs.orig_rax) {
             case SYS_exit:
             case SYS_exit_group: {
-                // Try both, since tracee02 has 2 mmap, the later one is the one seen in tracee02.c
-                char* memch = (char*)mem;
-                DEBUG("mmap(memfd)+0 at the end: %s", memch + 0);
-                DEBUG("mmap(memfd)+8192 at the end: %s", memch + 8192);
                 exit(regs.rdi);
                 break;
             }
@@ -84,7 +80,7 @@ int main(int argc, char **argv) {
                 long flags = regs.r10;
                 long fd = regs.r8;
                 long fd_offset = regs.r9;
-                DISABLED_DEBUG("Getting syscall mmap, addr=%p, len=%ld, "
+                DEBUG("Getting syscall mmap, addr=%p, len=%ld, "
                       "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
                       addr, len, prot, flags, fd, fd_offset);
                 if (addr == NULL &&
@@ -112,7 +108,17 @@ int main(int argc, char **argv) {
                 void* buf = (void*)regs.rsi;
                 long len = regs.rdx;
                 DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
+                // Tracee's address can be dereference without translation
+                // since it's mmaped at the same address at tracer
                 DEBUG("Accessing %p: %s", buf, (char*)buf);
+                DEBUG("Modifying (reversing) it");
+                char* bufc = (char*)buf;
+                if (bufc[len-1] == '\n') len -= 1;
+                for (int i = 0; i < len / 2; ++i) {
+                    char c = bufc[i];
+                    bufc[i] = bufc[len-1-i];
+                    bufc[len-1-i] = c;
+                }
                 break;
             }
         }
