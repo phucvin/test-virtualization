@@ -1,3 +1,11 @@
+Main test in this folder: ptrace, fork, memfd, mmap to allow tracer to read & write tracee memory faster than PTRACE_(PEEKDATA/POKEDATA)
+```
+TODO
+```
+Notes:
+- This is to improve https://github.com/phucvin/ptrace-examples (which uses PTRACE_(PEEKDATA/POKEDATA))
+- The main challenge is to handle tracee's mmap syscall and redirect it to a shared memfd
+
 Test clone(2):
 ```
 $ gcc -o clone01 clone01.c && ./clone01
