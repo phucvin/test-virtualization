@@ -28,7 +28,7 @@ TODO:
 - Write a simple ptrace tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes.
 - Multi-thread multi-process ptrace
 
-Test memfd and fork:
+Test memfd, mmap and fork:
 ```
 $ gcc -o memfd01 memfd01.c && ./memfd01
 wating for child (pid=11686) to exit
@@ -36,6 +36,8 @@ writing something to memfd (offset=ffffaaff)
 child exiting
 read 32 bytes from memfd (offset=ffffaaff): hello memfd
 parent exiting
+
+$ gcc -o memfd02 memfd02.c && ./memfd02
 ```
 
 References:
