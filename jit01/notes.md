@@ -19,7 +19,6 @@ $ gcc -fno-builtin -static -nostdlib -m32  -fomit-frame-pointer nostd01.c -o nos
 ```
 
 TODO:
-- Load a ELF file and run it in sandbox using ptrace
 - Generate a ELF file (similar to a simple compiler)
 - Simple WASM JIT
 

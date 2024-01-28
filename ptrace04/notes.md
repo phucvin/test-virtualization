@@ -1,10 +1,17 @@
-Main test in this folder: ptrace, fork, memfd, mmap to allow tracer to read & write tracee memory faster than PTRACE_(PEEKDATA/POKEDATA)
+Main test in this folder: use ptrace, fork, memfd, mmap to allow tracer to read & write tracee memory faster than PTRACE_(PEEKDATA/POKEDATA)
 ```
-TODO
+$ gcc -o ptrace04 ptrace04.c && ./ptrace04
 ```
 Notes:
 - This is to improve https://github.com/phucvin/ptrace-examples (which uses PTRACE_(PEEKDATA/POKEDATA))
 - The main challenge is to handle tracee's mmap syscall and redirect it to a shared memfd
+
+TODO:
+- If using `execve` makes it harder to open/use the memfd in the tracee, probably need to support loading ELF and executing them inside the forked process (instead of calling `execve`)
+
+
+The things below here are smaller related tests.
+
 
 Test clone(2):
 ```
