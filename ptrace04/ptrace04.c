@@ -103,6 +103,15 @@ int main(int argc, char **argv) {
                 }
                 break;
             }
+
+            case SYS_write: {
+                long fd = regs.rdi;
+                void* buf = (void*)regs.rsi;
+                long len = regs.rdx;
+                DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
+                DEBUG("Accessing %p: %s", buf, buf);
+                break;
+            }
         }
 
         /* Run system call and stop on exit */
