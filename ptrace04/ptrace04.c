@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
     // Parent
     if (waitpid(pid, 0, 0) == -1) PFATAL("Failed waitpid");
     if (ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_EXITKILL) == -1) PFATAL("Failed PTRACE_SETOPTIONS");
+    int mmapped_size = 0;
     for (;;) {
         /* Enter next system call */
         if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1) PFATAL("Failed PTRACE_SYSCALL");
@@ -66,8 +67,10 @@ int main(int argc, char **argv) {
         switch (regs.orig_rax) {
             case SYS_exit:
             case SYS_exit_group: {
-                char* memch = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
-                DEBUG("mmap(memfd) at the end: %s", memch);
+                char* memch = mmap(NULL, 0xffffffff, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
+                // Try both, since tracee02 has 2 mmap, the later one is the one seen in tracee02.c
+                DEBUG("mmap(memfd)+0 at the end: %s", memch + 0);
+                DEBUG("mmap(memfd)+8192 at the end: %s", memch + 8192);
                 exit(regs.rdi);
                 break;
             }
@@ -79,21 +82,23 @@ int main(int argc, char **argv) {
                 long flags = regs.r10;
                 long fd = regs.r8;
                 long fd_offset = regs.r9;
-                DEBUG("Getting syscall mmap, addr=%p, len=%ld, "
+                DISABLED_DEBUG("Getting syscall mmap, addr=%p, len=%ld, "
                       "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
                       addr, len, prot, flags, fd, fd_offset);
                 if (addr == NULL &&
-                    len == 4096 &&  // TODO: Remove
                     prot == 3 /* PROT_READ | PROT_WRITE */ &&
                     flags == 34 /* MAP_PRIVATE | MAP_ANONYMOUS */) {
-                    DEBUG("Fixing mmap(NULL, ?, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)"
-                          "\n\t\t\t\tto mmap(NULL, <same>, <same>, MAP_SHARED, `shared memfd`, 0)");
+                    addr = NULL;  // 0x11000000 + mmapped_size
                     flags = MAP_SHARED;
                     regs.r10 = flags;
                     fd = memfd;
                     regs.r8 = fd;
-                    fd_offset = 0;
+                    fd_offset = mmapped_size;
                     regs.r9 = fd_offset;
+                    mmapped_size += len;
+                    DEBUG("Fixing mmap(NULL, %ld, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)"
+                          "\n\t\t\t\tto mmap(%p, <same>, <same>, MAP_SHARED, `shared memfd`, %ld)",
+                          len, addr, fd_offset);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1) PFATAL("Failed PTRACE_SETREGS");
                 }
                 break;
@@ -113,7 +118,7 @@ int main(int argc, char **argv) {
                 long flags = regs.r10;
                 long fd = regs.r8;
                 long fd_offset = regs.r9;
-                DEBUG("Actually sent syscall mmap, addr=%p, len=%ld, "
+                DISABLED_DEBUG("Actually sent syscall mmap, addr=%p, len=%ld, "
                       "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld",
                       addr, len, prot, flags, fd, fd_offset);
                 break;
