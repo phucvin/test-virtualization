@@ -14,9 +14,11 @@ int main()
     if (fd == -1) {
         perror("memfd_create");
     }
+    // So mmap won't fail because accessing beyond the end of the file
+    ftruncate(fd, 0xffffffff);
 
     pid_t pid = fork();
-    long offset = 0;
+    long offset = 0xaaffa000;
     switch (pid) {
     case -1: {
         perror("fork");
@@ -24,7 +26,7 @@ int main()
     }
 
     case 0: {  // Child
-        void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
         if (mem == MAP_FAILED) {
             perror("mmap");
             exit(EXIT_FAILURE);
@@ -32,7 +34,6 @@ int main()
         printf("writing something to mem (addr=%p)\n", mem);
         char text[] = "hello memfd and mmap\0";
         memcpy(mem, text, sizeof(text));
-        // printf("test: %s", (char*)mem);
 
         printf("child exiting\n");
         exit(EXIT_SUCCESS);
