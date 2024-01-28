@@ -7,6 +7,7 @@ TODO:
 
 References:
 - https://man7.org/linux/man-pages/man2/ptrace.2.html
+- https://man7.org/linux/man-pages/man2/clone.2.html
 - https://groups.google.com/g/gvisor-users/c/9KOz4qBKl18?pli=1 (Sentry memory management)
 - https://github.com/google/gvisor/blob/master/pkg/sentry/mm/README.md
 - https://man7.org/linux/man-pages/man5/proc.5.html
@@ -16,3 +17,4 @@ References:
 - https://github.com/astroza/vkern
 - https://github.com/TUD-OS/libelkvm
 - https://github.com/aleden/ptrace-multi-threaded-demo
+- https://eli.thegreenplace.net/2018/launching-linux-threads-and-processes-with-clone/
