@@ -40,7 +40,9 @@ int main(int argc, char **argv) {
     // So mmap won't fail because accessing beyond the end of the file
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
     DEBUG("Created memfd: %d", memfd);
-    void* mem = mmap(NULL, 0xffffffff, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
+    void* mem_start = (void*)0x11000000;
+    void* mem_end = (void*)0x11ffffffff;
+    void* mem = mmap(mem_start, mem_end-mem_start, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, memfd, 0);
     if (mem == MAP_FAILED) PFATAL("Failed mmap");
 
     int pid = fork();
@@ -108,16 +110,19 @@ int main(int argc, char **argv) {
                 void* buf = (void*)regs.rsi;
                 long len = regs.rdx;
                 DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
-                // Tracee's address can be dereference without translation
-                // since it's mmaped at the same address at tracer
-                DEBUG("Accessing %p: %s", buf, (char*)buf);
-                DEBUG("Modifying (reversing) it");
-                char* bufc = (char*)buf;
-                if (bufc[len-1] == '\n') len -= 1;
-                for (int i = 0; i < len / 2; ++i) {
-                    char c = bufc[i];
-                    bufc[i] = bufc[len-1-i];
-                    bufc[len-1-i] = c;
+                if (buf >= mem_start && buf <= mem_end) {
+                    DEBUG("The address is inside memfd");
+                    // Tracee's address can be dereference without translation
+                    // since it's mmaped at the same address at tracer
+                    DEBUG("Accessing %p: %s", buf, (char*)buf);
+                    DEBUG("Modifying (reversing) it");
+                    char* bufc = (char*)buf;
+                    if (bufc[len-1] == '\n') len -= 1;
+                    for (int i = 0; i < len / 2; ++i) {
+                        char c = bufc[i];
+                        bufc[i] = bufc[len-1-i];
+                        bufc[len-1-i] = c;
+                    }
                 }
                 break;
             }

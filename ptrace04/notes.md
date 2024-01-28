@@ -27,6 +27,11 @@ $ gcc -o ptrace04 ptrace04.c && gcc -o tracee02 tracee02.c && ./ptrace04 ./trace
 
                         [ptrace04] Modifying (reversing) it
 EDCBAZYXWVUTSRQPONMLKJIHGFEDCBA
+
+$ gcc -o ptrace04 ptrace04.c && gcc -o tracee02 tracee02.c && ./ptrace04 ls
+[...]
+[ptrace04] Getting write(1, 0x55b107c04500, 133)
+clone01.c  clonentrace01.c  hello64  memfd01.c  memfd02.c  notes.md  ptrace04  ptrace04.c  tracee01  tracee01.c  tracee02  tracee02.c
 ```
 Notes:
 - This is to improve https://github.com/phucvin/ptrace-examples (which uses PTRACE_(PEEKDATA/POKEDATA))
