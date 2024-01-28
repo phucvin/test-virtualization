@@ -14,10 +14,12 @@ Child exited with status 0
 Checking buf again, buf = "hello from CHILD"
 ```
 
-Test clone and trace:
+Test clone and trace (WIP):
 ```
 $ gcc -o clonentrace01 clonentrace01.c && ./clonentrace01
 ```
+Notes:
+- Doesn't work yet, probably because cloned process is not ptraceable trivially.
 
 TODO:
 - Try PTRACE_SYSEMU, PTRACE_O_TRACECLONE

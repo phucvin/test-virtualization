@@ -9,8 +9,12 @@
 #include <unistd.h>
 
 int tracee_main(void* arg) {
-  ptrace(PTRACE_TRACEME, 0, 0, 0);
+  if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1) {
+      perror("PTRACE_TRACEME failed");
+      return 1;
+  }
   printf("tracee_main\n");
+  execvp("echo", NULL);
   return 0;
 }
 
@@ -47,10 +51,18 @@ int main() {
     perror("clone failed");
     return 1;
   }
-
-  waitpid(tracee_pid, 0, 0);
-  ptrace(PTRACE_SETOPTIONS, tracee_pid, 0, PTRACE_O_EXITKILL);
-
   printf("tracee_pid=%d\n", tracee_pid);
+
+  int tracee_status;
+  if (waitpid(tracee_pid, &tracee_status, 0) == -1) {
+    perror("waitpid failed");
+    return 1;
+  }
+  printf("tracee waitpid status=%d\n", tracee_status);
+  if (ptrace(PTRACE_SETOPTIONS, tracee_pid, 0, PTRACE_O_EXITKILL) == -1) {
+    perror("PTRACE_SETOPTIONS failed");
+    return 1;
+  }
+
   return tracer_main(tracee_pid);
 }
