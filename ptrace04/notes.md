@@ -14,6 +14,11 @@ Child exited with status 0
 Checking buf again, buf = "hello from CHILD"
 ```
 
+Test clone and trace:
+```
+$ gcc -o clonentrace01 clonentrace01.c && ./clonentrace01
+```
+
 TODO:
 - Try PTRACE_SYSEMU, PTRACE_O_TRACECLONE
 - Clone to keep the same address space, and load binary/ELF to executed in the cloned/tracee process so the tracer can directly access memory of the tracee as well.
