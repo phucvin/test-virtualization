@@ -24,7 +24,7 @@ int main()
 
     case 0: {  // Child
         lseek(fd, offset, 0);
-        printf("writing something to memfd\n");
+        printf("writing something to memfd (offset=%lx)\n", offset);
         write(fd, "hello memfd\0", 12);
 
         printf("child exiting\n");
@@ -39,7 +39,8 @@ int main()
         buf[sizeof(buf)-1] = '\0';
         lseek(fd, offset, 0);
         read(fd, buf, sizeof(buf)-1);
-        printf("read from memfd: %s\n", buf);
+        printf("read %ld bytes from memfd (offset=%lx): %s\n",
+               sizeof(buf), offset, buf);
 
         printf("parent exiting\n");
         exit(EXIT_SUCCESS);
