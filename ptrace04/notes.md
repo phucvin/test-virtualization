@@ -31,10 +31,10 @@ TODO:
 Test memfd and fork:
 ```
 $ gcc -o memfd01 memfd01.c && ./memfd01
-wating for child (pid=10511) to exit
-writing something to memfd
+wating for child (pid=11686) to exit
+writing something to memfd (offset=ffffaaff)
 child exiting
-read from memfd: hello memfd
+read 32 bytes from memfd (offset=ffffaaff): hello memfd
 parent exiting
 ```
 
