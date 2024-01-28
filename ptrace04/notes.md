@@ -5,6 +5,8 @@ $ gcc -o ptrace04 ptrace04.c && ./ptrace04
 Notes:
 - This is to improve https://github.com/phucvin/ptrace-examples (which uses PTRACE_(PEEKDATA/POKEDATA))
 - The main challenge is to handle tracee's mmap syscall and redirect it to a shared memfd
+- This is probably better than process_vm_readv/process_vm_writev since it doesn't require copying memory between processes.
+- But it might not provide more isolation since the linux process's memory is already isolated good enough. Also, not all memory are accessible in the tracer, e.g. non-mmap memory like sbrk or program's text.
 
 TODO:
 - If using `execve` makes it harder to open/use the memfd in the tracee, probably need to support loading ELF and executing them inside the forked process (instead of calling `execve`)
@@ -39,7 +41,6 @@ Notes & TODO:
 - Doesn't work yet, probably because cloned process is not ptraceable trivially.
 
 TODO:
-- Manage all mmap memory of tracee by intercepting mmap syscall and redirect it to a shared memfd/file.
 - Write a simple ptrace tool to pause process when it tries to exit, so we can view /proc/pid/* (e.g. maps, mem) of short-live processes.
 - Multi-thread multi-process ptrace
 
@@ -73,3 +74,4 @@ References:
 - https://github.com/TUD-OS/libelkvm
 - https://github.com/aleden/ptrace-multi-threaded-demo
 - https://eli.thegreenplace.net/2018/launching-linux-threads-and-processes-with-clone/
+- https://man7.org/linux/man-pages/man2/process_vm_readv.2.html
