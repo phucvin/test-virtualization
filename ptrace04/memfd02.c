@@ -26,14 +26,17 @@ int main()
     }
 
     case 0: {  // Child
-        void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
-        if (mem == MAP_FAILED) {
-            perror("mmap");
-            exit(EXIT_FAILURE);
+        for (int i = 1; i < 4; ++i) {
+            void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
+            if (mem == MAP_FAILED) {
+                perror("mmap");
+                exit(EXIT_FAILURE);
+            }
+            printf("writing something to mem (addr=%p)\n", mem);
+            char text[] = "hello memfd and mmap 0\0";
+            text[sizeof(text)-3] = '0' + i;
+            memcpy(mem, text, sizeof(text));
         }
-        printf("writing something to mem (addr=%p)\n", mem);
-        char text[] = "hello memfd and mmap\0";
-        memcpy(mem, text, sizeof(text));
 
         printf("child exiting\n");
         exit(EXIT_SUCCESS);
