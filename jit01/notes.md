@@ -18,6 +18,12 @@ $ strace ./execbin03
 $ gcc -fno-builtin -static -nostdlib -m32  -fomit-frame-pointer nostd01.c -o nostd01 && ./nostd01
 ```
 
+```
+$ gcc -o selfmodifying01 selfmodifying01.c && ./selfmodifying01
+Found bug, fixing...
+Segmentation fault (core dumped)
+```
+
 Test static linking:
 ```
 $ file ./nostd01 && ldd ./nostd01
@@ -55,3 +61,4 @@ References:
 - https://crates.io/crates/faerie
 - https://eli.thegreenplace.net/2013/10/17/getting-started-with-libjit-part-1
 - https://www.gnu.org/software/libjit/
+- https://stackoverflow.com/questions/52238441/c-how-to-change-my-own-program-in-my-program-in-runtime
