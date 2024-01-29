@@ -58,8 +58,9 @@ Notes:
 - This is probably better than process_vm_readv/process_vm_writev since it doesn't require copying memory between processes.
 - But it might not provide more isolation since the linux process's memory is already isolated good enough. Also, not all memory are accessible in the tracer, e.g. non-mmap memory like sbrk (update: can work-aroud) or program's text.
 
+- Using `execve` shouldn't close the memfd in the tracee, since file descriptors are kept open across `exec` unless specified close on exec.
 TODO:
-- If using `execve` makes it harder to open/use the memfd in the tracee, probably need to support loading ELF and executing them inside the forked process (instead of calling `execve`)
+- Allow tracer to access tracee .data sections directly by using `execveat` and memfd contains the tracee binary.
 
 
 The things below here are smaller related tests.
