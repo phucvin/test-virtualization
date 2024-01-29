@@ -32,5 +32,9 @@ int main() {
     // [ptrace03] Getting write(1, 0x55dad73e[a020], 37)
     // 55dad73e[8000]-55dad73e9000 r--p
     // 55dad73ec000-55dad73ed000 rw-p
+    // --
+    // [ptrace03] Getting write(1, 0x555759a[10020], 37)
+    // 555759a[0e000]-555759a0f000 r--p
+    // 555759a12000-555759a13000 rw-p
     return 0;
 }

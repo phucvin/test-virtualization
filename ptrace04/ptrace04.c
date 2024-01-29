@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
 
         /* Special handling per system call (entrance) */
         // DEBUG("Got syscall number=%llu", regs.orig_rax);
+        int skipped_syscall = -1;
         switch (regs.orig_rax) {
             case SYS_exit:
             case SYS_exit_group: {
@@ -106,9 +107,11 @@ int main(int argc, char **argv) {
             case SYS_brk: {
                 void* addr = (void*)regs.rdi;
                 DEBUG("Getting syscall brk, addr=%p", addr);
-                // Set to an invalid but unique syscall number,
-                // so nothing will be executed at kernel
-                regs.orig_rax = -8;
+                skipped_syscall = SYS_brk;
+                // Set to an harmless syscall (35 - nanosleep)
+                regs.orig_rax = 35;
+                regs.rdi = 0;
+                regs.rsi = 0;
                 if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                     PFATAL("Failed PTRACE_SETREGS");
                 break;
@@ -185,27 +188,39 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (exit) */
-        switch (regs.orig_rax) {
-            case -8: {
-                DEBUG("Returning failed syscall brk");
-                regs.rax = -ENOMEM;
-                if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
-                    PFATAL("Failed PTRACE_SETREGS");
-                break;
+        if (skipped_syscall != -1) {
+            switch (skipped_syscall) {
+                case SYS_brk: {
+                    DEBUG("Returning failed syscall brk");
+                    regs.rax = -ENOMEM;
+                    if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
+                        PFATAL("Failed PTRACE_SETREGS");
+                    break;
+                }
+                default: {
+                    DEBUG("Returning not implemented for "
+                          "unknown skipped syscall");
+                    regs.rax = -ENOSYS;
+                    if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
+                        PFATAL("Failed PTRACE_SETREGS");
+                    break;
+                }
             }
-
-            case SYS_mmap: {
-                void* addr = (void*)regs.rdi;
-                long len = regs.rsi;
-                long prot = regs.rdx;
-                long flags = regs.r10;
-                long fd = regs.r8;
-                long fd_offset = regs.r9;
-                DEBUG("Sent syscall mmap, addr=%p, len=%ld, "
-                      "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld. "
-                      "Got result=%p",
-                      addr, len, prot, flags, fd, fd_offset, (void*)regs.rax);
-                break;
+        } else {
+            switch (regs.orig_rax) {
+                case SYS_mmap: {
+                    void* addr = (void*)regs.rdi;
+                    long len = regs.rsi;
+                    long prot = regs.rdx;
+                    long flags = regs.r10;
+                    long fd = regs.r8;
+                    long fd_offset = regs.r9;
+                    DEBUG("Sent syscall mmap, addr=%p, len=%ld, "
+                        "prot=%ld, flags=%ld, fd=%ld, fd_offset=%ld. "
+                        "Got result=%p",
+                        addr, len, prot, flags, fd, fd_offset, (void*)regs.rax);
+                    break;
+                }
             }
         }
     }
