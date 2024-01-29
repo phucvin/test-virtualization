@@ -54,11 +54,11 @@ int main(int argc, char **argv) {
     int psize = ftell(pf);
     fseek(pf, 0L, SEEK_SET);
     if (ftruncate(pfd, psize) == -1) PFATAL("Failed ftruncate");
-    void* pmem = mmap(NULL, psize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED, pfd, 0);
+    void* pmem_start = (void*)0xaa11000000;
+    void* pmem_end = (void*)0xaa11ffffffff;
+    char* pmem = mmap(pmem_start, psize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_FIXED, pfd, 0);
     if (pmem == MAP_FAILED) PFATAL("Failed mmap");
     if (fread(pmem, psize, 1, pf) != 1) PFATAL("Failed fread");
-    void* pmem_start = pmem;
-    void* pmem_end = pmem + psize - 1;
     DEBUG("Loaded tracee ELF to another memfd, start=%p, end=%p", pmem_start, pmem_end);
 
     int pid = fork();
@@ -151,6 +151,22 @@ int main(int argc, char **argv) {
                     printf("\t\t%p after: %s", buf, (char*)buf);
                 } else {
                     DEBUG("The address is outside memfd, won't modify it");
+
+        // Try finding the constant string in tracee2 and modifing it
+        const char txt[] = "this is in the program data section\n";
+        const char modified_txt[] = "MODIFIED program data section......\n";
+        for (int i = 0; i < psize; ++i) {
+            int j;
+            for (j = 0; j < sizeof(txt); ++j) {
+                if (pmem[i+j] != txt[j]) break;
+            }
+            if (j == sizeof(txt)) {
+                printf("found tracee02's string constant at %p, modifying it\n", &pmem[i]);
+                memcpy(&pmem[i], modified_txt, sizeof(txt));
+                break;
+            }
+        }
+
                 }
                 break;
             }

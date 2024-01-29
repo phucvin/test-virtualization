@@ -20,5 +20,6 @@ int main() {
     printf("this is %s", buf);
     write(1, buf, size);
     write(1, text, sizeof(text));
+    pause();
     return 0;
 }
