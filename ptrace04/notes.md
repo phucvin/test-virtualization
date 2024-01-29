@@ -109,6 +109,19 @@ read 32 bytes from memfd (offset=aaffa000): hello memfd and mmap
 parent exiting
 ```
 
+Test memfd, fexecve:
+```
+$ gcc -o execveat01 execveat01.c && gcc -o tracee02 tracee02.c && ./execveat01 ./tracee02
+fsize: 871896
+msize: 871896
+fread: 1
+mem: 0x7fb86c7d3000, errno: 0
+this is ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE
+ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE
+this is in the program data section
+waited for child (pid=39590) to exit, exited=1 status=0
+```
+
 References:
 - https://man7.org/linux/man-pages/man2/ptrace.2.html
 - https://man7.org/linux/man-pages/man2/clone.2.html
