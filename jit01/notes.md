@@ -19,6 +19,7 @@ $ gcc -fno-builtin -static -nostdlib -m32  -fomit-frame-pointer nostd01.c -o nos
 ```
 
 TODO:
+- Static linking
 - Generate a ELF file (similar to a simple compiler)
 - Simple WASM JIT
 

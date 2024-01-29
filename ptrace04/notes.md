@@ -60,7 +60,7 @@ Notes:
 
 - Using `execve` shouldn't close the memfd in the tracee, since file descriptors are kept open across `exec` unless specified close on exec.
 TODO:
-- Allow tracer to access tracee .data sections directly by using `execveat` and memfd contains the tracee binary.
+- Allow tracer to access tracee .data sections directly by using `execveat` and memfd contains the tracee binary. Another option is to load ELF file and run it directly, but it seems more complicated.
 
 
 The things below here are smaller related tests.
@@ -119,3 +119,8 @@ References:
 - https://github.com/aleden/ptrace-multi-threaded-demo
 - https://eli.thegreenplace.net/2018/launching-linux-threads-and-processes-with-clone/
 - https://man7.org/linux/man-pages/man2/process_vm_readv.2.html
+- https://blog.cloudflare.com/how-to-execute-an-object-file-part-1
+- https://github.com/topics/elf-loader
+- https://github.com/malisal/loaders/blob/master/elf/main.c
+- https://github.com/EntySec/libpawn/blob/main/src/elf_pawn.c
+- https://stackoverflow.com/questions/63790377/how-memfd-create-and-fexecve-works-together
