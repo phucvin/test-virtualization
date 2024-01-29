@@ -44,27 +44,25 @@ int main(int argc, char **argv) {
         return 1;
     }
     if (pid == 0) {
-        char* argv2[] = {NULL};
         char* envp[] = {NULL};
         // The first byte is already 0x7F (magic number for ELF file),
         // changing this to anything else will make fexecve fail
         mem[0] = 0x7F;
         // Try finding the constant string in tracee02 and modifing it
-        const char* txt = "this is in the program data section\n";
-        const char* modified_txt = "MODIFIED program data section\n\0";
+        const char txt[] = "this is in the program data section\n";
+        const char modified_txt[] = "MODIFIED program data section......\n";
         for (int i = 0; i < fsize; ++i) {
             int j;
             for (j = 0; j < sizeof(txt); ++j) {
-                if (mem[i] != txt[j]) break;
+                if (mem[i+j] != txt[j]) break;
             }
-            // TODO: check why couldn't find it
             if (j == sizeof(txt)) {
-                printf("found tracee02 string constant, modifying it\n");
-                memcpy(&mem[i], modified_txt, sizeof(modified_txt));
+                printf("found tracee02's string constant, modifying it\n");
+                memcpy(&mem[i], modified_txt, sizeof(txt));
                 break;
             }
         }
-        fexecve(memfd, argv2, envp);
+        fexecve(memfd, argv+1, envp);
         printf("Failed fexecve, errno: %d\n", errno);
         return 1;
     } else {
