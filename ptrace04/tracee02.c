@@ -7,7 +7,10 @@ const char text[] = "this is in the program data section\n";
 
 int main() {
     int size = 32;
-    void* mem = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+    void* mem = mmap(NULL, 4096,
+                     PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANONYMOUS,
+                     0, 0);
     if (mem == MAP_FAILED) {
         printf("Failed to mmap: %d\n", errno);
         return 1;
