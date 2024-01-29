@@ -35,6 +35,7 @@
 int main(int argc, char **argv) {
     if (argc <= 1) FATAL("Too few arugments");
 
+    // Memory for the program's mmaps
     int memfd = memfd_create("memfd01", 0);
     if (memfd == -1) PFATAL("Failed memfd_create");
     // So mmap won't fail because accessing beyond the end of the file
@@ -45,12 +46,28 @@ int main(int argc, char **argv) {
     if (mem == MAP_FAILED) PFATAL("Failed mmap");
     DEBUG("Created memfd, fd=%d, start=%p, end=%p", memfd, mem_start, mem_end);
 
+    // Memory of the program binary itself
+    int pfd = memfd_create("memfd02", 0);
+    FILE *pf = fopen(argv[1], "rb");
+    if (pf == NULL) PFATAL("Failed fopen");
+    fseek(pf, 0L, SEEK_END);
+    int psize = ftell(pf);
+    fseek(pf, 0L, SEEK_SET);
+    if (ftruncate(pfd, psize) == -1) PFATAL("Failed ftruncate");
+    void* pmem = mmap(NULL, psize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED, pfd, 0);
+    if (pmem == MAP_FAILED) PFATAL("Failed mmap");
+    if (fread(pmem, psize, 1, pf) != 1) PFATAL("Failed fread");
+    void* pmem_start = pmem;
+    void* pmem_end = pmem + psize - 1;
+    DEBUG("Loaded tracee ELF to another memfd, start=%p, end=%p", pmem_start, pmem_end);
+
     int pid = fork();
     if (pid == -1) PFATAL("Failed fork");
     if (pid == 0) {  /* Child */
+        char* envp[] = {NULL};
         ptrace(PTRACE_TRACEME, 0, 0, 0);
-        execvp(argv[1], argv + 1);
-        PFATAL("Failed execvp");  // Only reachable if excecvp fails
+        fexecve(pfd, argv + 1, envp);
+        PFATAL("Failed fexecve");  // Only reachable if fexecve fails
     }
 
     // Parent
