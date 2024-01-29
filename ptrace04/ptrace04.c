@@ -42,7 +42,10 @@ int main(int argc, char **argv) {
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
     void* mem_start = (void*)0x11000000;
     void* mem_end = (void*)0x11ffffffff;
-    void* mem = mmap(mem_start, mem_end-mem_start, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, memfd, 0);
+    void* mem = mmap(mem_start, mem_end-mem_start,
+                     PROT_READ | PROT_WRITE,
+                     MAP_SHARED | MAP_FIXED,
+                     memfd, 0);
     if (mem == MAP_FAILED) PFATAL("Failed mmap");
     DEBUG("Created memfd, fd=%d, start=%p, end=%p", memfd, mem_start, mem_end);
 
