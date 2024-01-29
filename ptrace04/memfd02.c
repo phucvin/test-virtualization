@@ -54,8 +54,7 @@ int main()
 
         char buf[32];
         buf[sizeof(buf)-1] = '\0';
-        lseek(fd, offset, 0);
-        read(fd, buf, sizeof(buf)-1);
+        pread(fd, buf, sizeof(buf)-1, offset);
         printf("read %ld bytes from memfd (offset=%lx): %s\n",
                sizeof(buf), offset, buf);
 

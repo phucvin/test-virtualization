@@ -100,7 +100,7 @@ child exiting
 read 32 bytes from memfd (offset=ffffaaff): hello memfd
 parent exiting
 
-$ gcc -o memfd02 memfd02.c && ./memfd01
+$ gcc -o memfd02 memfd02.c && ./memfd02
 writing something to mem (addr=0x7f46ddd81000)
 child exiting
 waited for child (pid=25915) to exit, exited=1 status=0
