@@ -151,22 +151,6 @@ int main(int argc, char **argv) {
                     printf("\t\t%p after: %s", buf, (char*)buf);
                 } else {
                     DEBUG("The address is outside memfd, won't modify it");
-
-        // Try finding the constant string in tracee2 and modifing it
-        const char txt[] = "this is in the program data section\n";
-        const char modified_txt[] = "MODIFIED program data section......\n";
-        for (int i = 0; i < psize; ++i) {
-            int j;
-            for (j = 0; j < sizeof(txt); ++j) {
-                if (pmem[i+j] != txt[j]) break;
-            }
-            if (j == sizeof(txt)) {
-                printf("found tracee02's string constant at %p, modifying it\n", &pmem[i]);
-                memcpy(&pmem[i], modified_txt, sizeof(txt));
-                break;
-            }
-        }
-
                 }
                 break;
             }
