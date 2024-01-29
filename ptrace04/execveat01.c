@@ -51,17 +51,16 @@ int main(int argc, char **argv) {
         mem[0] = 0x7F;
         // Try finding the constant string in tracee02 and modifing it
         const char* txt = "this is in the program data section\n";
-        const char* modified_txt = "This is in the program data section\n";
+        const char* modified_txt = "MODIFIED program data section\n\0";
         for (int i = 0; i < fsize; ++i) {
             int j;
             for (j = 0; j < sizeof(txt); ++j) {
-                if (mem[i] == txt[j]) break;
+                if (mem[i] != txt[j]) break;
             }
+            // TODO: check why couldn't find it
             if (j == sizeof(txt)) {
                 printf("found tracee02 string constant, modifying it\n");
-                char* p = &mem[i];
-                // TODO: This gives ENOEXEC, probably have to wait after fexecve
-                // memcpy(p, modified_txt, sizeof(modified_txt));
+                memcpy(&mem[i], modified_txt, sizeof(modified_txt));
                 break;
             }
         }
