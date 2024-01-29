@@ -59,9 +59,9 @@ Notes:
 - But it might not provide more isolation since the linux process's memory is already isolated good enough. Also, not all memory are accessible in the tracer, e.g. non-mmap memory like sbrk (update: can work-aroud) or program's text.
 
 - Using `execve` shouldn't close the memfd in the tracee, since file descriptors are kept open across `exec` unless specified close on exec.
+- Allow tracer to access tracee .data sections directly by using `execveat` and memfd contains the tracee binary (another option is to load ELF file and run it directly, but it seems more complicated). Then, read from `/proc/<tracee pid>/maps` to get the base address of the ELF in tracee space to calculate potential-in-binary addresses in tracer space.
 
 TODO:
-- Allow tracer to access tracee .data sections directly by using `execveat` and memfd contains the tracee binary. Another option is to load ELF file and run it directly, but it seems more complicated.
 - Fix static linked binary hang when the tracer returns failed syscall brk `gcc -o ptrace04 ptrace04.c && gcc -static -no-pie -o tracee02 tracee02.c && ./ptrace04 ./tracee02`
 
 The things below here are smaller related tests.
