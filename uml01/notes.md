@@ -70,6 +70,9 @@ Use Ubuntu rootfs:
 TODO:
 - Try building UML in 32-bit (x86) and running it inside a 64-bit (x86_64) host OS
 - Try building UML in a different architecture (e.g. ARM, RISC-V) and running it inside a x86_64 host OS
+- Try userfaultfd
+- Try modify some code in the kernel and run it as UML (e.g. throw error on userfaultfd creation)
+- Try a newer kernel version for UML compared to the host kernel
 
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
