@@ -3,11 +3,13 @@ Minimal manual steps:
 $ sudo apt update && sudo apt install build-essential flex bison xz-utils wget ca-certificates bc linux-headers-generic gcc-multilib
 $ wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.2.tar.gz
 $ tar linux-6.7.2.tar.gz
-$ cd tar linux-6.7.2
+$ cd linux-6.7.2
 $ cp ../config01.config ./.config
 $ make ARCH=um
 $ export TMPDIR=/tmp
 $ ./linux root=/dev/root rootfstype=hostfs rw init=/bin/bash
+$ uname -av
+$ ls /  # should be similar to the host since UML is using host's root in this config
 ```
 
 Using a simple Dockerfile:
