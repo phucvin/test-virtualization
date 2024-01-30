@@ -78,9 +78,24 @@ int main(int argc, char **argv) {
     }
 
     // Parent
+    // Sync with child and start ptracing
     if (waitpid(pid, 0, 0) == -1) PFATAL("Failed waitpid");
     if (ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_EXITKILL) == -1)
         PFATAL("Failed PTRACE_SETOPTIONS");
+
+    // Parse /proc/pid/maps to get the base address of the loaded ELF
+    char tmp[256];
+    sprintf(tmp, "/proc/%d/maps", pid);
+    FILE* mapsf = fopen(tmp, "r");
+    DEBUG("Parsing child's /proc/%d/maps", pid);
+    while (!feof(mapsf)) {
+        if (fgets(tmp, sizeof(tmp), mapsf) == NULL && errno != 0)
+            PFATAL("Failed fgets");
+        DEBUG("  %s", tmp);
+    }
+    fclose(mapsf);
+
+    // Handle syscalls
     int mmapped_size = 0;
     for (;;) {
         /* Enter next system call */
