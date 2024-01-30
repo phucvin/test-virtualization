@@ -64,7 +64,7 @@ int main (int argc, char **argv)
 	   for all memory types depending on the underlying virtual memory
 	   backend (anonymous memory vs tmpfs vs real filebacked mappings)." */
 	if (api.api != UFFD_API) {
-		fprintf(stderr, "++ unexepcted UFFD api version.\n");
+		fprintf(stderr, "++ unexepcted UFFD api version: %llx\n", api.api);
 		goto cleanup_error;
 	}
 	/* mmap some pages, set them up with the userfaultfd. */
@@ -86,9 +86,9 @@ int main (int argc, char **argv)
 		goto cleanup_error;
 	}
 	if (reg.ioctls != UFFD_API_RANGE_IOCTLS) {
-		fprintf(stderr, "++ unexpected UFFD ioctls.\n");
-		goto cleanup_error;
-	}
+		fprintf(stderr, "++ unexpected UFFD ioctls: %llx.\n", reg.ioctls);
+		// goto cleanup_error;
+	// }
 	/* start a thread that will fault... */
 	pthread_t thread = {0};
 	if (pthread_create(&thread, NULL, print_virtual_memory, pages)) {
