@@ -88,7 +88,7 @@ int main (int argc, char **argv)
 	if (reg.ioctls != UFFD_API_RANGE_IOCTLS) {
 		fprintf(stderr, "++ unexpected UFFD ioctls: %llx.\n", reg.ioctls);
 		// goto cleanup_error;
-	// }
+	}
 	/* start a thread that will fault... */
 	pthread_t thread = {0};
 	if (pthread_create(&thread, NULL, print_virtual_memory, pages)) {

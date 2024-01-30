@@ -19,12 +19,15 @@ $ gcc -o tracee02 tracee02.c && ./tracee02
 
 Enable userfaultfd & test:
 ```
-$ cp ../config01.config ./.config
+$ cp ../config02.config ./.config  # Has CONFIG_USERFAULTFD=y
 $ make ARCH=um
 $ export TMPDIR=/tmp && ./linux root=/dev/root rootfstype=hostfs rw init=/bin/bash
 $ cd /workspaces/test-virtualization/gvsior02
 $ gcc -o userfaultfdtest01 userfaultfdtest01.c
 $ ./userfaultfdtest01
+++ unexpected UFFD ioctls: 11c.
+-- handled page fault.
+-- handled page fault.
 ```
 
 Using a simple Dockerfile:
