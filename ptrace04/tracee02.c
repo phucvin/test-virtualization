@@ -6,7 +6,7 @@
 const char text[] = "this is in the program data section\n";
 
 int main() {
-    char stack_txt[] = "this is on stack\n";
+    char stack_txt[] = "press enter to exit, (this message is on stack)\n";
     int size = 32;
     void* mem = mmap(NULL, 4096,
                      PROT_READ | PROT_WRITE,
@@ -26,8 +26,6 @@ int main() {
     write(1, text, sizeof(text));
     write(1, text, sizeof(text));
     write(1, stack_txt, sizeof(stack_txt));
-    pause();
-    // [ptrace03] Getting write(1, 0x7ffea5670480, 18)
-    // 7ffea5651000-7ffea5672000 stack
+    getchar();
     return 0;
 }
