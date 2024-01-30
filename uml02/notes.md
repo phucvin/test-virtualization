@@ -6,8 +6,7 @@ $ tar linux-6.7.2.tar.gz
 $ cd linux-6.7.2
 $ cp ../config01.config ./.config
 $ make ARCH=um
-$ export TMPDIR=/tmp
-$ ./linux root=/dev/root rootfstype=hostfs rw init=/bin/bash
+$ export TMPDIR=/tmp && ./linux root=/dev/root rootfstype=hostfs rw init=/bin/sh
 $ uname -av
 $ ls /  # should be similar to the host since UML is using host's root in this config
 ```
