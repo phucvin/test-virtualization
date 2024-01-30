@@ -67,12 +67,16 @@ Use Ubuntu rootfs:
 - Build and run the docker image again
 - tracee02 if built GitHub Codespaces, should works inside UML now
 
+Build and run a newer kernel in UML (newer than the kernel on host OS):
+- https://cdn.kernel.org/pub/linux/kernel/v6.x/ linux-6.7.2.tar.gz
+- Edit furry-happiness/Docker file accordingly
+- Build and run the docker image again
+
 TODO:
 - Try building UML in 32-bit (x86) and running it inside a 64-bit (x86_64) host OS
 - Try building UML in a different architecture (e.g. ARM, RISC-V) and running it inside a x86_64 host OS
 - Try userfaultfd
 - Try modify some code in the kernel and run it as UML (e.g. throw error on userfaultfd creation)
-- Try a newer kernel version for UML compared to the host kernel
 
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
