@@ -20,6 +20,8 @@ $ curl google.com  # This works
 $ curl https://www.google.com  # This doesn't work, probably related to HTTPS protocol
 ```
 TODO:
+- Try different options for networking (e.g. TUN/TAP, pcap, see https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html#setting-up-the-network)
+- Try different rootfs (e.g. https://cdimage.ubuntu.com/ubuntu-base/releases/23.10/release/)
 - Fix current issues, similar to the ones in manual steps above
 - Share folder with host and execute host-built binary inside UML
 - Add gcc to build & run program inside UML
