@@ -48,6 +48,10 @@ Notes:
 
 TODO:
 - Fix static linked binary hang when the tracer returns failed syscall brk `gcc -o ptrace04 ptrace04.c && gcc -static -no-pie -o tracee02 tracee02.c && ./ptrace04 ./tracee02`
+- If can even access data on tracee's stack, that can be even better
+- Handle more syscalls (e.g. execve, arch_prclt, uname, mprotect, fstat, pause, access, open/openat, close, read, write, pread/pread64, munmap, etc.)
+- Handle open & mmap to files, including shared libraries (e.g. linux-vdso.so.1, libc.so.6, /lib64/ld-linux-x86-64.so.2, etc.), to allow only known/customized files.
+- Block all other syscalls.
 
 The things below here are smaller related tests.
 
