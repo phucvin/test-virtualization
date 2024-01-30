@@ -67,6 +67,10 @@ Use Ubuntu rootfs:
 - Build and run the docker image again
 - tracee02 if built GitHub Codespaces, should works inside UML now
 
+TODO:
+- Try building UML in 32-bit (x86) and running it inside a 64-bit (x86_64) host OS
+- Try building UML in a different architecture (e.g. ARM, RISC-V) and running it inside a x86_64 host OS
+
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
 - https://github.com/Xe/furry-happiness
@@ -74,3 +78,4 @@ References:
 - https://gist.github.com/hughpearse/98c1ae466e9462b44e305649fbfd5db2 (Building and running User Mode Linux (UML))
 - https://github.com/weber-software/diuid (Docker in User Mode Linux)
 - https://www.youtube.com/watch?v=kbMhke7s0VM
+- https://stackoverflow.com/questions/14510619/how-to-build-uml-user-mode-linux-in-32-bit-mode-on-64-bit-host
