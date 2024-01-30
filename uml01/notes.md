@@ -16,7 +16,9 @@ $ docker build -t xena/docker-uml .  # This might take 10+ minutes
 $ docker run --rm -it xena/docker-uml
 ```
 TODO:
+- Fix current issues, similar to the ones in manual steps above
 - Share folder with host and execute host-built binary inside UML
+- Add gcc to build & run program inside UML
 
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
