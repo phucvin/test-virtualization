@@ -1,48 +1,33 @@
 Main test in this folder: use ptrace, fork, memfd, mmap to allow tracer to read & write tracee memory faster than PTRACE_(PEEKDATA/POKEDATA)
 ```
 $ gcc -o ptrace04 ptrace04.c && gcc -o tracee02 tracee02.c && ./ptrace04 ./tracee02
-        [ptrace04] Created memfd, fd=3, start=0x11000000, end=0x11ffffffff
-        [ptrace04] Getting syscall brk, addr=(nil)
-        [ptrace04] Returning failed syscall brk
-        [ptrace04] Getting syscall mmap, addr=(nil), len=38391, prot=1, flags=2, fd=4, fd_offset=0
-        [ptrace04] Sent syscall mmap, addr=(nil), len=38391, prot=1, flags=2, fd=4, fd_offset=0. Got result=0x7f2d7852e000
-        [ptrace04] Getting syscall mmap, addr=(nil), len=8192, prot=3, flags=34, fd=4294967295, fd_offset=0
-        [ptrace04] Fixing mmap(NULL, 8192, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)
-                to mmap(0x11000000, <same>, <same>, MAP_SHARED, `shared memfd`, 0)
-        [ptrace04] Sent syscall mmap, addr=0x11000000, len=8192, prot=3, flags=17, fd=3, fd_offset=0. Got result=0x11000000
-        [ptrace04] Getting syscall mmap, addr=(nil), len=2037344, prot=1, flags=2050, fd=4, fd_offset=0
-        [ptrace04] Sent syscall mmap, addr=(nil), len=2037344, prot=1, flags=2050, fd=4, fd_offset=0. Got result=0x7f2d7833c000
-        [ptrace04] Getting syscall mmap, addr=0x7f2d7835e000, len=1540096, prot=5, flags=2066, fd=4, fd_offset=139264
-        [ptrace04] Sent syscall mmap, addr=0x7f2d7835e000, len=1540096, prot=5, flags=2066, fd=4, fd_offset=139264. Got result=0x7f2d7835e000
-        [ptrace04] Getting syscall mmap, addr=0x7f2d784d6000, len=319488, prot=1, flags=2066, fd=4, fd_offset=1679360
-        [ptrace04] Sent syscall mmap, addr=0x7f2d784d6000, len=319488, prot=1, flags=2066, fd=4, fd_offset=1679360. Got result=0x7f2d784d6000
-        [ptrace04] Getting syscall mmap, addr=0x7f2d78524000, len=24576, prot=3, flags=2066, fd=4, fd_offset=1994752
-        [ptrace04] Sent syscall mmap, addr=0x7f2d78524000, len=24576, prot=3, flags=2066, fd=4, fd_offset=1994752. Got result=0x7f2d78524000
-        [ptrace04] Getting syscall mmap, addr=0x7f2d7852a000, len=13920, prot=3, flags=50, fd=4294967295, fd_offset=0
-        [ptrace04] Sent syscall mmap, addr=0x7f2d7852a000, len=13920, prot=3, flags=50, fd=4294967295, fd_offset=0. Got result=0x7f2d7852a000
-        [ptrace04] Getting syscall mmap, addr=(nil), len=4096, prot=3, flags=34, fd=0, fd_offset=0
-        [ptrace04] Fixing mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)
-                to mmap(0x11002000, <same>, <same>, MAP_SHARED, `shared memfd`, 8192)
-        [ptrace04] Sent syscall mmap, addr=0x11002000, len=4096, prot=3, flags=17, fd=3, fd_offset=8192. Got result=0x11002000
-        [ptrace04] Getting syscall brk, addr=(nil)
-        [ptrace04] Returning failed syscall brk
-        [ptrace04] Getting syscall mmap, addr=(nil), len=1048576, prot=3, flags=34, fd=4294967295, fd_offset=0
-        [ptrace04] Fixing mmap(NULL, 1048576, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)
+...
+        [ptrace03] Getting syscall brk, addr=(nil)
+        [ptrace03] Returning failed syscall brk
+        [ptrace03] Getting syscall mmap, addr=(nil), len=1048576, prot=3, flags=34, fd=4294967295, fd_offset=0
+        [ptrace03] Fixing mmap(NULL, 1048576, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, ?, ?)
                 to mmap(0x11003000, <same>, <same>, MAP_SHARED, `shared memfd`, 12288)
-        [ptrace04] Sent syscall mmap, addr=0x11003000, len=1048576, prot=3, flags=17, fd=3, fd_offset=12288. Got result=0x11003000
-        [ptrace04] Getting write(1, 0x110032a0, 40)
-        [ptrace04] The address is inside memfd, will modifying (case reversing) it
+        [ptrace03] Sent syscall mmap, addr=0x11003000, len=1048576, prot=3, flags=17, fd=3, fd_offset=12288. Got result=0x11003000
+        [ptrace03] Getting write(1, 0x110032a0, 40)
+        [ptrace03] The address is inside memfd, will modifying (case reversing) it
                 0x110032a0 before: this is ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE
                 0x110032a0 after: THIS IS abcdefghijklmnopqrstuvwxyzabcde
 THIS IS abcdefghijklmnopqrstuvwxyzabcde
-        [ptrace04] Getting write(1, 0x11002000, 32)
-        [ptrace04] The address is inside memfd, will modifying (case reversing) it
+        [ptrace03] Getting write(1, 0x11002000, 32)
+        [ptrace03] The address is inside memfd, will modifying (case reversing) it
                 0x11002000 before: ABCDEFGHIJKLMNOPQRSTUVWXYZABCDE
                 0x11002000 after: abcdefghijklmnopqrstuvwxyzabcde
 abcdefghijklmnopqrstuvwxyzabcde
-        [ptrace04] Getting write(1, 0x55ac6427d020, 37)
-        [ptrace04] The address is outside memfd, won't modify it
-this is in the program data section
+        [ptrace03] Getting write(1, 0x55c4111ce020, 37)
+        [ptrace03] The address is inside program/ELF memfd, will modifying (ROT13, uppercase) it
+                0x7fe9ad9a9020 before: this is in the program data section
+                0x7fe9ad9a9020 after: GUVF VF VA GUR CEBTENZ QNGN FRPGVBA
+GUVF VF VA GUR CEBTENZ QNGN FRPGVBA
+        [ptrace03] Getting write(1, 0x55c4111ce020, 37)
+        [ptrace03] The address is inside program/ELF memfd, will modifying (ROT13, uppercase) it
+                0x7fe9ad9a9020 before: GUVF VF VA GUR CEBTENZ QNGN FRPGVBA
+                0x7fe9ad9a9020 after: THIS IS IN THE PROGRAM DATA SECTION
+THIS IS IN THE PROGRAM DATA SECTION
 
 $ gcc -o ptrace04 ptrace04.c && gcc -o tracee02 tracee02.c && ./ptrace04 ls ../
 ...

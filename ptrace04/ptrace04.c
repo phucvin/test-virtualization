@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -129,7 +130,7 @@ int main(int argc, char **argv) {
     int psize = ftell(pf);
     fseek(pf, 0L, SEEK_SET);
     if (ftruncate(pfd, psize) == -1) PFATAL("Failed ftruncate");
-    char* pmem = mmap(NULL, psize,
+    void* pmem = mmap(NULL, psize,
                       PROT_READ | PROT_WRITE | PROT_EXEC,
                       MAP_SHARED, pfd, 0);
     if (pmem == MAP_FAILED) PFATAL("Failed mmap");
@@ -251,20 +252,32 @@ int main(int argc, char **argv) {
                 void* buf = (void*)regs.rsi;
                 long len = regs.rdx;
                 DEBUG("Getting write(%ld, %p, %ld)", fd, buf, len);
-                if (buf >= mem_start && buf <= mem_end) {
+                if (buf >= mem_start && buf < mem_end) {
                     DEBUG("The address is inside memfd, "
                           "will modifying (case reversing) it");
-                    printf("\t\t%p before: %s", buf, (char*)buf);
                     // Tracee's address can be dereference without translation
                     // since it's mmaped at the same address at tracer
                     char* bufc = (char*)buf;
+                    printf("\t\t%p before: %s", bufc, bufc);
                     for (int i = 0; i < len; ++i) {
                         char c = bufc[i];
-                        if (c >= 'a' && c <= 'z') c = 'A' + (c - 'a');
-                        else if (c >= 'A' && c <= 'Z') c = 'a' + (c - 'A');
+                        if (isalpha(c) && islower(c)) c = toupper(c);
+                        else if (isalpha(c) && isupper(c)) c = tolower(c);
                         bufc[i] = c;
                     }
-                    printf("\t\t%p after: %s", buf, (char*)buf);
+                    printf("\t\t%p after: %s", bufc, bufc);
+                } else if (buf >= pmem_start && buf < pmem_end) {
+                    DEBUG("The address is inside program/ELF memfd, "
+                          "will modifying (ROT13, uppercase) it");
+                    char* bufc = (char*)((unsigned long long)pmem +
+                                         buf - pmem_start);
+                    printf("\t\t%p before: %s", bufc, bufc);
+                    for (int i = 0; i < len; ++i) {
+                        char c = bufc[i];
+                        if (isalpha(c)) c = 'A' + ((toupper(c)-'A'+13)%26);
+                        bufc[i] = c;
+                    }
+                    printf("\t\t%p after: %s", bufc, bufc);
                 } else {
                     DEBUG("The address is outside memfd, won't modify it");
                 }

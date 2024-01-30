@@ -23,18 +23,6 @@ int main() {
     printf("this is %s", buf);
     write(1, buf, size);
     write(1, text, sizeof(text));
-    pause();
-    // [ptrace03] Getting write(1, 0x559250c6[2020], 37)
-    // 559250c6[0000]-559250c61000 r--p
-    // ...
-    // 559250c64000-559250c65000 rw-p
-    // --
-    // [ptrace03] Getting write(1, 0x55dad73e[a020], 37)
-    // 55dad73e[8000]-55dad73e9000 r--p
-    // 55dad73ec000-55dad73ed000 rw-p
-    // --
-    // [ptrace03] Getting write(1, 0x555759a[10020], 37)
-    // 555759a[0e000]-555759a0f000 r--p
-    // 555759a12000-555759a13000 rw-p
+    write(1, text, sizeof(text));
     return 0;
 }
