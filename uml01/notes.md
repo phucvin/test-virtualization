@@ -58,7 +58,14 @@ Trying some other rootfs:
 - https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86/alpine-minirootfs-3.19.1-x86.tar.gz -> Error (using 32-bit rootfs in a 64-bit host OS)
 - https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/armv7/alpine-minirootfs-3.19.1-armv7.tar.gz -> Error (using ARM rootfs on a x86_64 host OS)
 - https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-minirootfs-3.19.1-aarch64.tar.gz -> Error (using ARM rootfs on a x86_64 host OS)
-- https://cdimage.ubuntu.com/ubuntu-base/releases/23.10/release/ ubuntu-base-23.10-base-amd64.tar.gz -> Unknown error
+- https://cdimage.ubuntu.com/ubuntu-base/releases/23.10/release/ ubuntu-base-23.10-base-amd64.tar.gz -> init.sh error (see fix below)
+
+Use Ubuntu rootfs:
+- In furry-happiness/Dockerfile:
+- Use https://cdimage.ubuntu.com/ubuntu-base/releases/23.10/release/ubuntu-base-23.10-base-amd64.tar.gz instead of `alpine-minirootfs`
+- Replace `init=/init.sh` with `init=/bin/bash`
+- Build and run the docker image again
+- tracee02 if built GitHub Codespaces, should works inside UML now
 
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
