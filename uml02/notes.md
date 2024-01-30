@@ -12,6 +12,12 @@ $ uname -av
 $ ls /  # should be similar to the host since UML is using host's root in this config
 ```
 
+Optional testing commands:
+```
+$ cd /workspaces/test-virtualization/ptrace04
+$ gcc -o tracee02 tracee02.c && ./tracee02
+```
+
 Using a simple Dockerfile:
 ```
 ```
