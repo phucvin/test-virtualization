@@ -29,6 +29,8 @@ $ ./userfaultfdtest01
 -- handled page fault.
 -- handled page fault.
 ```
+Notes:
+- Can edit `linux-6.7.2/fs/userfaultfd.c` and build UML again to see the effect
 
 Using a simple Dockerfile:
 ```
