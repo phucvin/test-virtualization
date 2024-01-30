@@ -180,8 +180,10 @@ int main(int argc, char **argv) {
     int mmapped_size = 0;
     for (;;) {
         /* Enter next system call */
+        DEBUG("PTRACE_SYSCALL");
         if (ptrace(PTRACE_SYSCALL, pid, 0, 0) == -1)
             PFATAL("Failed PTRACE_SYSCALL");
+        DEBUG("waitpid");
         if (waitpid(pid, 0, 0) == -1)
             PFATAL("Failed waitpid");
 
@@ -191,9 +193,10 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        // DEBUG("Got syscall number=%llu", regs.orig_rax);
+        DEBUG("Got syscall number=%llu", regs.orig_rax);
         int skipped_syscall = -1;
         switch (regs.orig_rax) {
+            case -1:
             case SYS_exit:
             case SYS_exit_group: {
                 exit(regs.rdi);
@@ -296,10 +299,12 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (exit) */
+        DEBUG("Kernel returned %llu for syscall %llu", regs.rax, regs.orig_rax);
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
                     DEBUG("Returning failed syscall brk");
+                    regs.orig_rax = SYS_brk;
                     regs.rax = -ENOMEM;
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
