@@ -32,6 +32,78 @@
 
 #define DISABLED_DEBUG(...) \
 
+// From: https://github.com/ouadev/proc_maps_parser/blob/master/pmparser.c
+void _pmparser_split_line(
+		char*buf,char*addr1,char*addr2,
+		char*perm,char* offset,char* device,char*inode,
+		char* pathname){
+	//
+	int orig=0;
+	int i=0;
+	//addr1
+	while(buf[i]!='-'){
+		addr1[i-orig]=buf[i];
+		i++;
+	}
+	addr1[i]='\0';
+	i++;
+	//addr2
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' '){
+		addr2[i-orig]=buf[i];
+		i++;
+	}
+	addr2[i-orig]='\0';
+
+	//perm
+	while(buf[i]=='\t' || buf[i]==' ')
+		i++;
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' '){
+		perm[i-orig]=buf[i];
+		i++;
+	}
+	perm[i-orig]='\0';
+	//offset
+	while(buf[i]=='\t' || buf[i]==' ')
+		i++;
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' '){
+		offset[i-orig]=buf[i];
+		i++;
+	}
+	offset[i-orig]='\0';
+	//dev
+	while(buf[i]=='\t' || buf[i]==' ')
+		i++;
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' '){
+		device[i-orig]=buf[i];
+		i++;
+	}
+	device[i-orig]='\0';
+	//inode
+	while(buf[i]=='\t' || buf[i]==' ')
+		i++;
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' '){
+		inode[i-orig]=buf[i];
+		i++;
+	}
+	inode[i-orig]='\0';
+	//pathname
+	pathname[0]='\0';
+	while(buf[i]=='\t' || buf[i]==' ')
+		i++;
+	orig=i;
+	while(buf[i]!='\t' && buf[i]!=' ' && buf[i]!='\n'){
+		pathname[i-orig]=buf[i];
+		i++;
+	}
+	pathname[i-orig]='\0';
+
+}
+
 int main(int argc, char **argv) {
     if (argc <= 1) FATAL("Too few arugments");
 
@@ -57,16 +129,12 @@ int main(int argc, char **argv) {
     int psize = ftell(pf);
     fseek(pf, 0L, SEEK_SET);
     if (ftruncate(pfd, psize) == -1) PFATAL("Failed ftruncate");
-    void* pmem_start = (void*)0xaa11000000;
-    void* pmem_end = (void*)0xaa11ffffffff;
-    char* pmem = mmap(pmem_start, psize,
+    char* pmem = mmap(NULL, psize,
                       PROT_READ | PROT_WRITE | PROT_EXEC,
-                      MAP_SHARED | MAP_FIXED,
-                      pfd, 0);
+                      MAP_SHARED, pfd, 0);
     if (pmem == MAP_FAILED) PFATAL("Failed mmap");
     if (fread(pmem, psize, 1, pf) != 1) PFATAL("Failed fread");
-    DEBUG("Loaded tracee ELF to another memfd, start=%p, end=%p",
-          pmem_start, pmem_end);
+    DEBUG("Loaded tracee ELF to another memfd");
 
     int pid = fork();
     if (pid == -1) PFATAL("Failed fork");
@@ -84,6 +152,8 @@ int main(int argc, char **argv) {
         PFATAL("Failed PTRACE_SETOPTIONS");
 
     // Parse /proc/pid/maps to get the base address of the loaded ELF
+    void* pmem_start = NULL;
+    void* pmem_end = NULL;
     char tmp[256];
     sprintf(tmp, "/proc/%d/maps", pid);
     FILE* mapsf = fopen(tmp, "r");
@@ -91,7 +161,17 @@ int main(int argc, char **argv) {
     while (!feof(mapsf)) {
         if (fgets(tmp, sizeof(tmp), mapsf) == NULL && errno != 0)
             PFATAL("Failed fgets");
-        DEBUG("  %s", tmp);
+        char addr1[20], addr2[20], perm[8];
+        char offset[20], dev[10], inode[30], pathname[128];
+        _pmparser_split_line(tmp, addr1, addr2, perm,
+                             offset, dev, inode, pathname);
+		DEBUG("  %s-%s %s %s %s %s %s",
+              addr1, addr2, perm, offset, dev, inode, pathname);
+        if (strcmp(pathname, "/memfd:memfd02") == 0) {
+            if (pmem_start == NULL) sscanf(addr1, "%p", &pmem_start);
+            sscanf(addr2, "%p", &pmem_end);
+            DEBUG("  Updated pmem_start=%p, pmem_end=%p", pmem_start, pmem_end);
+        }
     }
     fclose(mapsf);
 
