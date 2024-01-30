@@ -6,12 +6,13 @@ $ tar linux-6.7.2.tar.gz
 $ cd tar linux-6.7.2
 $ make ARCH=um allnoconfig KCONFIG_ALLCONFIG=../mini.config
 $ make ARCH=um
-$ cd ..
-$ wget https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.1-x86_64.tar.gz
-$ mkdir alpine-3.19.1 && tar xf alpine-minirootfs-3.19.1-x86_64.tar.gz -C alpine-3.19.1
-$ cd ..
-$ export TMPDIR=/tmp
-$ ./linux-6.7.2/linux root=/dev/root rootfstype=hostfs rootflags=/workspaces/test-virtualization/uml02/alpine-3.19.1 rw init=/bin/sh
+$ ./linux root=/dev/root rootfstype=hostfs rw init=/bin/bash
+#$ cd ..
+#$ wget https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.1-x86_64.tar.gz
+#$ mkdir alpine-3.19.1 && tar xf alpine-minirootfs-3.19.1-x86_64.tar.gz -C alpine-3.19.1
+#$ cd ..
+#$ export TMPDIR=/tmp
+#$ ./linux-6.7.2/linux root=/dev/root rootfstype=hostfs rootflags=/workspaces/test-virtualization/uml02/alpine-3.19.1 rw init=/bin/sh
 ```
 
 Using a simple Dockerfile:
