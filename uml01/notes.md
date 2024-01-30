@@ -53,6 +53,13 @@ tracee02_sl: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), staticall
 Notes:
 - Dynamically linked binaries might not work inside UML, if the UML rootfs is different from the host's (e.g. UML uses Alpine, host uses Ubuntu). Need `apk add gcompat` (see https://wiki.alpinelinux.org/wiki/Running_glibc_programs) and some copying/linking to satisfy the host's binary regarding libraries.
 
+Trying some other rootfs:
+- https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.1-x86_64.tar.gz -> OK
+- https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86/alpine-minirootfs-3.19.1-x86.tar.gz -> Error (using 32-bit rootfs in a 64-bit host OS)
+- https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/armv7/alpine-minirootfs-3.19.1-armv7.tar.gz -> Error (using ARM rootfs on a x86_64 host OS)
+- https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-minirootfs-3.19.1-aarch64.tar.gz -> Error (using ARM rootfs on a x86_64 host OS)
+- https://cdimage.ubuntu.com/ubuntu-base/releases/23.10/release/ ubuntu-base-23.10-base-amd64.tar.gz -> Unknown error
+
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
 - https://github.com/Xe/furry-happiness
