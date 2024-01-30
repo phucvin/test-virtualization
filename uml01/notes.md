@@ -24,6 +24,22 @@ TODO:
 - Share folder with host and execute host-built binary inside UML
 - Add gcc to build & run program inside UML
 
+Run binary built from host:
+```
+$ cd furry-happiness
+$ gcc -static -no-pie -o tracee02 ../../ptrace04/tracee02.c
+$ # Add `COPY tracee02 /chroot/home/tracee02` to furry-happiness/Dockerfile, after `COPY init.sh /chroot/init.sh`
+$ docker build -t xena/docker-uml .
+$ docker run --rm -it xena/docker-uml
+# cd home
+# ./tracee02
+# apk add file
+# file tracee02
+tracee02: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statically linked, BuildID[sha1]=e87696a4c5d34915c8bb0ae058df2437c9f5cb59, for GNU/Linux 3.2.0, not stripped
+```
+Notes:
+- Dynamically linked binaries might not work inside UML, if the UML rootfs is different from the host's (e.g. UML uses Alpine, host uses Ubuntu)
+
 References:
 - https://www.kernel.org/doc/html/v5.9/virt/uml/user_mode_linux.html
 - https://github.com/Xe/furry-happiness
