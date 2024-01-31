@@ -209,10 +209,29 @@ int main(int argc, char **argv) {
                 DEBUG("Getting syscall brk, addr=%p", addr);
                 skipped_syscall = SYS_brk;
                 brk_addr = addr;
-                // Set to an harmless syscall (35 - nanosleep)
-                regs.orig_rax = 35;
-                regs.rdi = 0;
-                regs.rsi = 0;
+                if (addr == NULL) {
+                    // Set to an harmless syscall (35 - nanosleep)
+                    regs.orig_rax = 35;
+                    regs.rdi = 0;
+                    regs.rsi = 0;
+                } else if (addr >= mem_brk_start && addr < mem_end) {
+                    // Change to mmap
+                    regs.orig_rax = SYS_mmap;
+                    void* addr = mem_brk_start;
+                    regs.rdi = addr;
+                    long len = 4096;  // TODO: align (brk_addr - mem_brk_start)
+                    regs.rsi = len;
+                    long prot = PROT_READ | PROT_WRITE;
+                    regs.rdx = prot;
+                    long flags = MAP_PRIVATE | MAP_ANONYMOUS;
+                    regs.r10 = flags;
+                    long fd = memfd;
+                    regs.r8 = fd;
+                    long fd_offset = mem_brk_start - mem_start;
+                    regs.r9 = fd_offset;
+                } else {
+                    PFATAL("Unexpected address for syscall brk");
+                }
                 if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                     PFATAL("Failed PTRACE_SETREGS");
                 break;
@@ -305,14 +324,14 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
+                    DEBUG("Before returning faked syscall brk, regs.orig_rax=%lld, regs.rax=%p/%lld, regs.rdi=%p", regs.orig_rax, regs.rax, regs.rax, regs.rdi);
                     regs.orig_rax = SYS_brk;
                     if (brk_addr == NULL) {
                         regs.rax = mem_brk_start;
                     } else {
-                        mem_brk_start = brk_addr;
+                        mem_brk_start += 4096;  // TODO: based on len
                         regs.rax = brk_addr;
                     }
-                    regs.rax = -ENOMEM;
                     DEBUG("Returning faked syscall brk, regs.rax=%p/%lld, regs.rdi=%p", regs.rax, regs.rax, regs.rdi);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
