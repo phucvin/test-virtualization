@@ -15,7 +15,7 @@
 
 #define FATAL(...) \
     do { \
-        fprintf(stderr, "\t[ptrace03] " __VA_ARGS__); \
+        fprintf(stderr, "\t[ptrace04] " __VA_ARGS__); \
         fputc('\n', stderr); \
         exit(EXIT_FAILURE); \
     } while (0)
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        DEBUG("Got syscall number=%lld", regs.orig_rax);
+        DISABLED_DEBUG("Got syscall number=%lld", regs.orig_rax);
         int skipped_syscall = -1;
         void* brk_addr = NULL;
         switch (regs.orig_rax) {
@@ -213,12 +213,10 @@ int main(int argc, char **argv) {
                     regs.orig_rax = 35;
                     regs.rdi = 0;
                     regs.rsi = 0;
-                } else if (brk_addr >= mem+(unsigned long long)mem_brk_start &&
-                           brk_addr < mem+(unsigned long long)mem_end) {
+                } else if (brk_addr >= mem_brk_start && brk_addr < mem_end) {
                     // Change to mmap
                     regs.orig_rax = SYS_mmap;
-                    regs.rdi = (unsigned long long)mem +
-                               (unsigned long long)mem_brk_start;  // addr
+                    regs.rdi = (unsigned long long)mem_brk_start;  // addr
                     regs.rsi = 4096;  // len
                     regs.rdx = PROT_READ | PROT_WRITE;  // prot
                     regs.r10 = MAP_PRIVATE | MAP_ANONYMOUS;  // flags
@@ -319,13 +317,15 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
+                    // DEBUG("orig_rax=%lld rax=%lld/%p", regs.orig_rax, regs.rax, regs.rax);
+                    regs.orig_rax = SYS_brk;
                     if (brk_addr == NULL) {
-                        regs.rax = (unsigned long long)mem +
-                                   (unsigned long long)mem_brk_start;
+                        regs.rax = (unsigned long long)mem_brk_start;
                     } else {
                         mem_brk_start += regs.rsi;  // len arg in mmap
                         regs.rax = (unsigned long long)brk_addr;
                     }
+                    // DEBUG("orig_rax=%lld rax=%lld/%p", regs.orig_rax, regs.rax, regs.rax);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
                     break;
