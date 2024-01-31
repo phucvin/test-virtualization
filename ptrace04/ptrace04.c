@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        DEBUG("Got syscall number=%lld", regs.orig_rax);
+        DISABLED_DEBUG("Got syscall number=%lld", regs.orig_rax);
         int skipped_syscall = -1;
         void* brk_addr = NULL;
         switch (regs.orig_rax) {
@@ -205,30 +205,24 @@ int main(int argc, char **argv) {
             }
 
             case SYS_brk: {
-                void* addr = (void*)regs.rdi;
-                DEBUG("Getting syscall brk, addr=%p", addr);
+                brk_addr = (void*)regs.rdi;
+                DEBUG("Getting syscall brk, addr=%p", brk_addr);
                 skipped_syscall = SYS_brk;
-                brk_addr = addr;
-                if (addr == NULL) {
+                if (brk_addr == NULL) {
                     // Set to an harmless syscall (35 - nanosleep)
                     regs.orig_rax = 35;
                     regs.rdi = 0;
                     regs.rsi = 0;
-                } else if (addr >= mem_brk_start && addr < mem_end) {
+                } else if (brk_addr >= mem_brk_start && brk_addr < mem_end) {
                     // Change to mmap
                     regs.orig_rax = SYS_mmap;
-                    void* addr = mem_brk_start;
-                    regs.rdi = addr;
-                    long len = 4096;  // TODO: align (brk_addr - mem_brk_start)
-                    regs.rsi = len;
-                    long prot = PROT_READ | PROT_WRITE;
-                    regs.rdx = prot;
-                    long flags = MAP_PRIVATE | MAP_ANONYMOUS;
-                    regs.r10 = flags;
-                    long fd = memfd;
-                    regs.r8 = fd;
-                    long fd_offset = mem_brk_start - mem_start;
-                    regs.r9 = fd_offset;
+                    regs.rdi = (unsigned long long)mem +
+                               (unsigned long long)mem_brk_start;  // addr
+                    regs.rsi = 4096;  // len
+                    regs.rdx = PROT_READ | PROT_WRITE;  // prot
+                    regs.r10 = MAP_PRIVATE | MAP_ANONYMOUS;  // flags
+                    regs.r8 = memfd;  // fd
+                    regs.r9 = mem_brk_start - mem_start; // fd_offset
                 } else {
                     PFATAL("Unexpected address for syscall brk");
                 }
@@ -324,15 +318,12 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
-                    DEBUG("Before returning faked syscall brk, regs.orig_rax=%lld, regs.rax=%p/%lld, regs.rdi=%p", regs.orig_rax, regs.rax, regs.rax, regs.rdi);
-                    regs.orig_rax = SYS_brk;
                     if (brk_addr == NULL) {
-                        regs.rax = mem_brk_start;
+                        regs.rax = (unsigned long long)mem_brk_start;
                     } else {
-                        mem_brk_start += 4096;  // TODO: based on len
-                        regs.rax = brk_addr;
+                        mem_brk_start += regs.rsi;
+                        regs.rax = (unsigned long long)brk_addr;
                     }
-                    DEBUG("Returning faked syscall brk, regs.rax=%p/%lld, regs.rdi=%p", regs.rax, regs.rax, regs.rdi);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
                     break;
