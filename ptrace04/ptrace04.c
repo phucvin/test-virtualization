@@ -114,7 +114,8 @@ int main(int argc, char **argv) {
     // So mmap won't fail because accessing beyond the end of the file
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
     void* mem_start = (void*)0x11000000;
-    void* mem_end = (void*)0x11001000;
+    void* mem_brk_start = (void*)0x11aaaaaa;
+    void* mem_end = (void*)0x11ffffff;
     void* mem = mmap(mem_start, mem_end-mem_start,
                      PROT_READ | PROT_WRITE,
                      MAP_SHARED | MAP_FIXED,
@@ -302,9 +303,15 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
-                    DEBUG("Returning failed syscall brk");
+                    DEBUG("Returning faked syscall brk");
                     regs.orig_rax = SYS_brk;
-                    regs.rax = -ENOMEM;
+                    void* addr = (void*)regs.rdi;
+                    if (addr == NULL) {
+                        regs.rax = mem_brk_start;
+                    } else {
+                        mem_brk_start = addr;
+                        regs.rax = addr;
+                    }
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
                     break;
