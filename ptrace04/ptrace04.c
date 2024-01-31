@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        DISABLED_DEBUG("Got syscall number=%lld", regs.orig_rax);
+        DEBUG("Got syscall number=%lld", regs.orig_rax);
         int skipped_syscall = -1;
         void* brk_addr = NULL;
         switch (regs.orig_rax) {
@@ -213,7 +213,8 @@ int main(int argc, char **argv) {
                     regs.orig_rax = 35;
                     regs.rdi = 0;
                     regs.rsi = 0;
-                } else if (brk_addr >= mem_brk_start && brk_addr < mem_end) {
+                } else if (brk_addr >= mem+(unsigned long long)mem_brk_start &&
+                           brk_addr < mem+(unsigned long long)mem_end) {
                     // Change to mmap
                     regs.orig_rax = SYS_mmap;
                     regs.rdi = (unsigned long long)mem +
@@ -224,7 +225,7 @@ int main(int argc, char **argv) {
                     regs.r8 = memfd;  // fd
                     regs.r9 = mem_brk_start - mem_start; // fd_offset
                 } else {
-                    PFATAL("Unexpected address for syscall brk");
+                    FATAL("Unexpected address for syscall brk");
                 }
                 if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                     PFATAL("Failed PTRACE_SETREGS");
@@ -319,9 +320,10 @@ int main(int argc, char **argv) {
             switch (skipped_syscall) {
                 case SYS_brk: {
                     if (brk_addr == NULL) {
-                        regs.rax = (unsigned long long)mem_brk_start;
+                        regs.rax = (unsigned long long)mem +
+                                   (unsigned long long)mem_brk_start;
                     } else {
-                        mem_brk_start += regs.rsi;
+                        mem_brk_start += regs.rsi;  // len arg in mmap
                         regs.rax = (unsigned long long)brk_addr;
                     }
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
