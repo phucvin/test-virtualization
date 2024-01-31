@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     // So mmap won't fail because accessing beyond the end of the file
     if (ftruncate(memfd, 0xffffffff) == -1) PFATAL("Failed ftruncate");
     void* mem_start = (void*)0x11000000;
-    void* mem_brk_start = (void*)0x11aaaaaa;
+    void* mem_brk_start = (void*)0x11aa0000;
     void* mem_end = (void*)0x11ffffff;
     void* mem = mmap(mem_start, mem_end-mem_start,
                      PROT_READ | PROT_WRITE,
@@ -192,8 +192,9 @@ int main(int argc, char **argv) {
             PFATAL("Failed PTRACE_GETREGS");
 
         /* Special handling per system call (entrance) */
-        DISABLED_DEBUG("Got syscall number=%llu", regs.orig_rax);
+        DEBUG("Got syscall number=%lld", regs.orig_rax);
         int skipped_syscall = -1;
+        void* brk_addr = NULL;
         switch (regs.orig_rax) {
             case -1:
             case SYS_exit:
@@ -207,6 +208,7 @@ int main(int argc, char **argv) {
                 void* addr = (void*)regs.rdi;
                 DEBUG("Getting syscall brk, addr=%p", addr);
                 skipped_syscall = SYS_brk;
+                brk_addr = addr;
                 // Set to an harmless syscall (35 - nanosleep)
                 regs.orig_rax = 35;
                 regs.rdi = 0;
@@ -303,15 +305,15 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
-                    DEBUG("Returning faked syscall brk");
                     regs.orig_rax = SYS_brk;
-                    void* addr = (void*)regs.rdi;
-                    if (addr == NULL) {
+                    if (brk_addr == NULL) {
                         regs.rax = mem_brk_start;
                     } else {
-                        mem_brk_start = addr;
-                        regs.rax = addr;
+                        mem_brk_start = brk_addr;
+                        regs.rax = brk_addr;
                     }
+                    regs.rax = -ENOMEM;
+                    DEBUG("Returning faked syscall brk, regs.rax=%p/%lld, regs.rdi=%p", regs.rax, regs.rax, regs.rdi);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
                     break;
