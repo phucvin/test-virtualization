@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
                     regs.rdi = (unsigned long long)mem_brk_start;  // addr
                     regs.rsi = 4096;  // len
                     regs.rdx = PROT_READ | PROT_WRITE;  // prot
-                    regs.r10 = MAP_PRIVATE | MAP_ANONYMOUS;  // flags
+                    regs.r10 = MAP_SHARED | MAP_FIXED;  // flags
                     regs.r8 = memfd;  // fd
                     regs.r9 = mem_brk_start - mem_start; // fd_offset
                 } else {
@@ -317,7 +317,6 @@ int main(int argc, char **argv) {
         if (skipped_syscall != -1) {
             switch (skipped_syscall) {
                 case SYS_brk: {
-                    // DEBUG("orig_rax=%lld rax=%lld/%p", regs.orig_rax, regs.rax, regs.rax);
                     regs.orig_rax = SYS_brk;
                     if (brk_addr == NULL) {
                         regs.rax = (unsigned long long)mem_brk_start;
@@ -325,7 +324,6 @@ int main(int argc, char **argv) {
                         mem_brk_start += regs.rsi;  // len arg in mmap
                         regs.rax = (unsigned long long)brk_addr;
                     }
-                    // DEBUG("orig_rax=%lld rax=%lld/%p", regs.orig_rax, regs.rax, regs.rax);
                     if (ptrace(PTRACE_SETREGS, pid, 0, &regs) == -1)
                         PFATAL("Failed PTRACE_SETREGS");
                     break;
