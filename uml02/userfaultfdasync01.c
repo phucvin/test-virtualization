@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+#define __NR_userfaultfd 323
 #define UFFD_USER_MODE_ONLY 1
 #define UFFD_FEATURE_WP_ASYNC (1<<15)
 #define UFFDIO_COPY_MODE_WP ((__u64)1<<1)
