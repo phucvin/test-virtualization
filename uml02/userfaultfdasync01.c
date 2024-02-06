@@ -49,7 +49,7 @@ int main() {
   if ((api.ioctls & UFFD_API_IOCTLS) != UFFD_API_IOCTLS)
     printf("api.ioctls mismatched, expected: %llx, actual: %llx\n",
            UFFD_API_IOCTLS, api.ioctls);
-  if ((api.features & UFFD_FEATURE_WP_ASYNC) == UFFD_FEATURE_WP_ASYNC)
+  if ((api.features & UFFD_FEATURE_WP_ASYNC) != UFFD_FEATURE_WP_ASYNC)
     printf("api.features missing UFFD_FEATURE_WP_ASYNC, features: %llx\n",
            api.features);
 
